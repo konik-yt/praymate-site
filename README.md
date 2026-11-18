@@ -18,7 +18,7 @@ The prayer times are real. They are calculated in the browser with the same libr
 
 ## Colors
 
-Each time of day uses its palette from the app's `HomePalette` (`lib/theme/home_palette.dart`): the artwork's ground color for the page, a lighter box color, Delft Blue `#353B56` for the highlighted box, and Earth Yellow `#FBB45E` for actions. The closing section uses the deep colors from the welcome screens.
+Each time of day keeps its hue from the app's `HomePalette` (`lib/theme/home_palette.dart`), but as a deep ground with cream text, so the Kaaba artwork is the only bright thing on the page. Earth Yellow `#FBB45E` marks actions and the next prayer. The closing section and the legal pages use the deep ink from the welcome screens.
 
 ## Run locally
 

@@ -22,6 +22,7 @@
   --max: 1120px;
   --ease: cubic-bezier(.2, .7, .2, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-io: cubic-bezier(.65, 0, .3, 1);
 
   /* Hero sizes. 0 is the opening view, 1 the band it shrinks to as you
      scroll. B is the height of the picture's box, S the side of the square
@@ -211,21 +212,23 @@ a { color: inherit; }
   box-shadow: 0 0 4px rgba(255, 246, 230, .8);
   animation: twinkle var(--t) ease-in-out var(--d) infinite alternate;
 }
-@keyframes twinkle { from { opacity: .2; } to { opacity: 1; } }
+@keyframes twinkle { from { opacity: .1; transform: scale(.6); } to { opacity: 1; transform: scale(1.15); } }
 .moon {
   position: absolute; right: 12%; top: 20%; width: clamp(30px, 2.8vw, 48px);
   fill: #FFF3DC; filter: drop-shadow(0 0 14px rgba(255, 238, 205, .6));
 }
-/* Flat clouds in the artwork's style: a pill with two bumps, one solid color.
-   Opacity sits on the cloud, so the overlaps don't show as darker patches. */
+/* Soft clouds: three blurred puffs, tinted by --cloud-rgb. */
 .cloud {
-  position: absolute; left: 0; top: var(--y); width: var(--w); height: calc(var(--w) * .16);
-  border-radius: 999px; background: var(--cloud, #fff); opacity: var(--cloud-o, .35);
+  position: absolute; left: 0; top: var(--y); width: var(--w); height: calc(var(--w) * .3);
+  background: radial-gradient(closest-side, rgb(var(--cloud-rgb, 255 255 255) / .55), rgb(var(--cloud-rgb, 255 255 255) / 0));
   animation: drift var(--t) linear var(--d) infinite;
 }
-.cloud::before, .cloud::after { content: ""; position: absolute; border-radius: 50%; background: inherit; }
-.cloud::before { width: 34%; aspect-ratio: 1; left: 18%; bottom: 30%; }
-.cloud::after { width: 24%; aspect-ratio: 1; left: 46%; bottom: 35%; }
+.cloud::before, .cloud::after {
+  content: ""; position: absolute; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--cloud-rgb, 255 255 255) / .5), rgb(var(--cloud-rgb, 255 255 255) / 0));
+}
+.cloud::before { width: 55%; height: 120%; left: 14%; top: -45%; }
+.cloud::after { width: 45%; height: 100%; left: 46%; top: -30%; }
 @keyframes drift { from { transform: translateX(-40vw); } to { transform: translateX(110vw); } }
 .bird { position: absolute; left: 0; top: var(--y); width: var(--w); animation: fly var(--t) linear var(--d) infinite; }
 .bird svg {
@@ -235,22 +238,23 @@ a { color: inherit; }
 @keyframes fly { from { transform: translate(-40px, 0); } to { transform: translate(calc(100vw + 40px), -40px); } }
 @keyframes flap { to { transform: scaleY(.4); } }
 
-[data-scene="dawn"] .stars { opacity: .8; }
+[data-scene="dawn"] .stars { opacity: .9; }
 [data-scene="night"] .stars { opacity: 1; }
 [data-scene="evening"] .stars { opacity: .3; }
 [data-scene="dawn"] .moon { opacity: .9; }
 [data-scene="night"] .moon { opacity: 1; }
 [data-scene="day"] .clouds { opacity: 1; }
-[data-scene="evening"] .clouds { opacity: .45; }
-[data-scene="day"] .cloud { --cloud-o: .5; }
-[data-scene="evening"] .cloud { --cloud: #F3C2A8; }
+[data-scene="evening"] .clouds { opacity: .5; }
+[data-scene="dawn"] .clouds { opacity: .5; }
+[data-scene="dawn"] .cloud { --cloud-rgb: 232 196 222; }
+[data-scene="evening"] .cloud { --cloud-rgb: 243 194 168; }
 [data-scene="dawn"] .flock, [data-scene="evening"] .flock { opacity: .6; }
 [data-scene="day"] .flock { opacity: .5; }
 
 /* Dims the artwork so it sits behind the text, most on the text's side. */
 .art-dim {
   position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(8, 10, 26, .46), rgba(8, 10, 26, .24) 45%, rgba(8, 10, 26, .14));
+  background: linear-gradient(to bottom, rgba(8, 10, 26, .62), rgba(8, 10, 26, .38) 45%, rgba(8, 10, 26, .26));
 }
 /* Darkens the top of the sky behind the text. */
 .art-shade {
@@ -281,31 +285,45 @@ a { color: inherit; }
   text-shadow: 0 1px 16px rgba(10, 16, 40, .3);
 }
 
-/* On first load the picture opens out of an arch around the Kaaba to the
-   full width of the page. app.js adds is-open once the picture has loaded. */
+/* On first load the Kaaba waits in an arch in the middle of the screen.
+   The arch grows to the full page while the picture glides to its place,
+   like walking up to a doorway. Then the picture darkens and the text comes
+   in. app.js adds is-open once the picture has loaded. The arch is .49 S0
+   tall, and the stage moves up so the Kaaba sits inside it. */
+.hero { --zoom: 2.8s; --arch-gap: max(0px, calc((var(--B0) - var(--S0) * .49) / 2)); }
 .is-revealing .art-box {
   clip-path: inset(
-    max(0px, calc(var(--B0) - var(--S0) * .52))
-    calc(100% - var(--cx) - var(--arch) / 2)
-    calc(var(--S0) * .03)
-    calc(var(--cx) - var(--arch) / 2)
+    var(--arch-gap) calc(50% - var(--arch) / 2) var(--arch-gap) calc(50% - var(--arch) / 2)
     round calc(var(--arch) / 2) calc(var(--arch) / 2) 20px 20px);
 }
-.is-revealing .stage { transform: translateX(-50%) scale(1.08); }
+.is-revealing .stage {
+  left: 50%; bottom: calc(var(--B0) / 2 - var(--S0) * .375);
+  transform: translateX(-50%) scale(.94);
+}
+.is-revealing .art-dim, .is-revealing .art-shade { opacity: 0; }
 .is-revealing .site-header,
 .is-revealing .hero-text > * { opacity: 0; transform: translateY(14px); }
 .is-revealing.is-open .art-box {
   clip-path: inset(0px 0px 0px 0px round 0px 0px 0px 0px);
-  transition: clip-path 1.5s var(--ease-out), background-color .6s var(--ease);
+  transition: clip-path var(--zoom) var(--ease-io), background-color .6s var(--ease);
 }
-.is-revealing.is-open .stage { transform: translateX(-50%) scale(1); transition: transform 1.8s var(--ease-out); }
+.is-revealing.is-open .stage {
+  left: var(--cx); bottom: calc(var(--S) * -.1); transform: translateX(-50%) scale(1);
+  transition: left var(--zoom) var(--ease-io), bottom var(--zoom) var(--ease-io), transform var(--zoom) var(--ease-io);
+}
+.is-revealing.is-open .art-dim, .is-revealing.is-open .art-shade {
+  opacity: 1; transition: opacity 1.4s var(--ease-io) calc(var(--zoom) - .5s);
+}
 .is-revealing.is-open .site-header,
 .is-revealing.is-open .hero-text > * {
   opacity: 1; transform: none;
-  transition: opacity .9s var(--ease) .7s, transform 1.1s var(--ease-out) .7s;
+  transition: opacity .9s var(--ease) var(--zoom), transform 1.1s var(--ease-out) var(--zoom);
 }
-.is-revealing.is-open .hero-line { transition-delay: .82s; }
-.is-revealing.is-open .hero-text > .button { transition-delay: .94s, .94s; transition-property: opacity, transform, background-color; }
+.is-revealing.is-open .hero-line { transition-delay: calc(var(--zoom) + .12s); }
+.is-revealing.is-open .hero-text > .button {
+  transition-delay: calc(var(--zoom) + .24s), calc(var(--zoom) + .24s);
+  transition-property: opacity, transform, background-color;
+}
 
 /* The title that rises in on the band, like a tab page's title. */
 .band-text {
@@ -404,7 +422,8 @@ a { color: inherit; }
 .alarm-row-text { display: grid; line-height: 1.3; }
 .alarm-row-text strong { font-size: 17px; font-weight: 500; }
 .alarm-row-text span { font-size: 14px; color: var(--secondary); }
-.alarm-row.is-off .alarm-row-text, .alarm-row.is-off .row-icon { opacity: .55; }
+.alarm-row-text, .alarm-row .row-icon { transition: opacity .4s var(--ease-io), filter .4s var(--ease-io); }
+.alarm-row.is-off .alarm-row-text, .alarm-row.is-off .row-icon { opacity: .38; filter: grayscale(1); }
 
 .alarm-edit { grid-column: 1 / -1; padding: 2px 4px 16px 16px; display: grid; gap: 14px; }
 .alarm-edit.is-opening { animation: edit-in .4s var(--ease-out) both; }
@@ -435,11 +454,11 @@ a { color: inherit; }
 .switch {
   flex: none; width: 50px; height: 30px; border-radius: 999px; padding: 4px; border: 0; cursor: pointer;
   background: var(--track); display: flex;
-  transition: background-color .25s var(--ease);
+  transition: background-color .4s var(--ease-io);
 }
 .switch::after {
   content: ""; width: 22px; height: 22px; border-radius: 50%; background: var(--secondary); opacity: .6;
-  transition: transform .3s var(--ease-out), background-color .25s var(--ease), opacity .25s var(--ease);
+  transition: transform .4s var(--ease-io), background-color .4s var(--ease-io), opacity .4s var(--ease-io);
 }
 .switch.is-on { background: var(--earth); }
 .switch.is-on::after { background: var(--deep); opacity: 1; transform: translateX(20px); }
@@ -609,11 +628,21 @@ a { color: inherit; }
 
 /* Closing, always at night, like the app's welcome screens */
 .get {
+  position: relative; isolation: isolate; overflow: hidden;
   margin-top: 160px; min-height: 100svh;
-  background: linear-gradient(to bottom, #2E3249 0%, #5D4E57 22%, #2A2B3E 36%, var(--deep) 50%);
+  --horizon: 27%;
+  background: linear-gradient(to bottom, #20233C 0%, #36344F 12%, #6A5562 var(--horizon), #252536 var(--horizon), var(--deep) 62%);
   color: var(--cream);
   padding: 0 var(--gutter);
   display: grid; grid-template-rows: 1fr auto; text-align: center;
+}
+.get-sky { position: absolute; inset: 0 0 auto; height: var(--horizon); z-index: -1; overflow: hidden; pointer-events: none; }
+.get-sky .moon { opacity: 1; top: 18%; right: 14%; }
+.get-sky .clouds { opacity: .55; }
+.get-sky .cloud { --cloud-rgb: 214 172 190; }
+.get-ridge {
+  position: absolute; left: 0; z-index: -1; width: 100%;
+  --rh: clamp(56px, 8vw, 128px); height: var(--rh); top: calc(var(--horizon) + 2px - var(--rh));
 }
 .get-body { display: grid; justify-items: center; align-content: center; padding: 96px 0 64px; }
 .arch {
@@ -659,7 +688,7 @@ a { color: inherit; }
   }
   .hero-text > * { pointer-events: auto; }
   .art-dim {
-    background: linear-gradient(90deg, rgba(8, 10, 26, .55), rgba(8, 10, 26, .32) 38%, rgba(8, 10, 26, .16) 66%, rgba(8, 10, 26, .12));
+    background: linear-gradient(90deg, rgba(8, 10, 26, .74), rgba(8, 10, 26, .5) 38%, rgba(8, 10, 26, .3) 66%, rgba(8, 10, 26, .24));
   }
   .band-text { top: 28px; }
   .feature {

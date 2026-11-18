@@ -68,7 +68,7 @@
           </div>
           <!-- Live details over the painted sky, chosen by the time of day. -->
           <div class="sky">
-            <div class="stars" data-stars></div>
+            <div class="stars" data-stars="120"></div>
             <svg class="moon" viewBox="0 0 40 40"><path d="M24 6a14 14 0 1 0 10 24A11 11 0 0 1 24 6Z"/></svg>
             <div class="clouds">
               <span class="cloud" style="--w:300px;--y:14%;--t:150s;--d:-40s"></span>
@@ -237,6 +237,19 @@
 
       <!-- The closing section fills the screen, with the credits at its foot. -->
       <section class="get" id="get" data-scene="night" aria-labelledby="get-title">
+        <div class="get-sky" aria-hidden="true">
+          <div class="stars" data-stars="70"></div>
+          <svg class="moon" viewBox="0 0 40 40"><path d="M24 6a14 14 0 1 0 10 24A11 11 0 0 1 24 6Z"/></svg>
+          <div class="clouds">
+            <span class="cloud" style="--w:260px;--y:30%;--t:160s;--d:-30s"></span>
+            <span class="cloud" style="--w:340px;--y:62%;--t:200s;--d:-110s"></span>
+            <span class="cloud" style="--w:200px;--y:12%;--t:180s;--d:-150s"></span>
+          </div>
+        </div>
+        <svg class="get-ridge" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+          <path fill="#40384F" d="M0 66C120 38 230 30 350 50s210 40 350 12 260-44 400-18 240 36 340 6V120H0Z"/>
+          <path fill="#252536" d="M0 92c160-22 300-26 430-8s270 26 430 2 300-28 440-8 120 12 140 6V120H0Z"/>
+        </svg>
         <div class="get-body">
           <div class="arch" aria-hidden="true">
             <div class="arch-window"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"></div>

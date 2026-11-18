@@ -192,7 +192,8 @@ function reveal(imgs) {
   const ready = Promise.all(imgs.map((img) => (img.complete ? null : img.decode().catch(() => {}))));
   Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
     requestAnimationFrame(() => root.classList.add("is-open"));
-    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 2400);
+    // The zoom, the darkening and the text take about 4.4 s in all.
+    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 4600);
   });
 }
 
@@ -252,7 +253,7 @@ function renderAlarms() {
     return `<div class="alarm-row${on ? "" : " is-off"}${open ? " is-open" : ""}">
       <button class="alarm-main" type="button" data-edit="${p.key}" aria-expanded="${open}"${open ? ` aria-controls="edit-${p.key}"` : ""}>
         <span class="row-icon" aria-hidden="true">${ICONS[p.icon]}</span>
-        <span class="alarm-row-text"><strong>${p.name}</strong><span>${on ? `${r.time} ${r.ampm}, ${offsetText(mins)}` : "Off"}</span></span>
+        <span class="alarm-row-text"><strong>${p.name}</strong><span>${r.time} ${r.ampm}, ${offsetText(mins)}</span></span>
         ${CHEVRON}
       </button>
       <button class="switch${on ? " is-on" : ""}" type="button" role="switch" aria-checked="${on}" aria-label="${p.name} alarm" data-toggle="${p.key}"></button>
@@ -291,9 +292,11 @@ function setupAlarms() {
       const on = !ALARMS[d.toggle][1];
       ALARMS[d.toggle][1] = on;
       // Let the switch slide before the list is rebuilt.
+      // Slide the switch and grey the row out before the list is rebuilt.
       b.classList.toggle("is-on", on);
+      b.closest(".alarm-row").classList.toggle("is-off", !on);
       b.setAttribute("aria-checked", String(on));
-      setTimeout(renderAlarms, 300);
+      setTimeout(renderAlarms, 420);
     } else if (d.edit) {
       openAlarm = openAlarm === d.edit ? null : d.edit;
       justOpened = openAlarm;
@@ -566,13 +569,14 @@ function setupCollapse() {
 // Stars for the dawn and night skies, the same pattern on every visit and
 // bunched toward the top, each twinkling on its own timing.
 function makeStars() {
-  const box = $("[data-stars]");
   let seed = 11;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  box.innerHTML = Array.from({ length: 90 }, () => {
-    const size = (0.8 + rnd() * 1.6).toFixed(1);
-    return `<i style="left:${(rnd() * 100).toFixed(2)}%;top:${(rnd() * rnd() * 100).toFixed(2)}%;width:${size}px;height:${size}px;--t:${(2.5 + rnd() * 4).toFixed(2)}s;--d:${(-rnd() * 6).toFixed(2)}s"></i>`;
-  }).join("");
+  document.querySelectorAll("[data-stars]").forEach((box) => {
+    box.innerHTML = Array.from({ length: Number(box.dataset.stars) }, () => {
+      const size = (0.8 + rnd() * 1.8).toFixed(1);
+      return `<i style="left:${(rnd() * 100).toFixed(2)}%;top:${(rnd() * rnd() * 100).toFixed(2)}%;width:${size}px;height:${size}px;--t:${(2 + rnd() * 3.5).toFixed(2)}s;--d:${(-rnd() * 6).toFixed(2)}s"></i>`;
+    }).join("");
+  });
 }
 
 function start() {

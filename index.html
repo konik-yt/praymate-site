@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-scene="day">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Prayer: alarms for the five daily prayers</title>
+  <meta name="description" content="Prayer is an Android app that works out the five daily prayer times on your phone, rings an alarm for each one, and keeps a record of how you answered.">
+  <meta name="theme-color" content="#3984D4">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Outfit-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/adhan@4.4.3/lib/bundles/adhan.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Prayer, home">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3.2a9 9 0 1 0 5.3 15.1A7.6 7.6 0 0 1 15.5 3.2Z"/></svg>
+      <span class="brand-word">Prayer</span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#screens">Screens</a>
+      <a class="nav-cta" href="#get">Get the app</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="next-name">
+      <div class="stage" aria-hidden="true">
+        <img class="art" data-art="dawn" src="assets/art/dawn-wide.webp" alt="" width="2445" height="940" decoding="async">
+        <img class="art" data-art="day" src="assets/art/daytime-wide.webp" alt="" width="2445" height="940" decoding="async">
+        <img class="art" data-art="evening" src="assets/art/evening-wide.webp" alt="" width="2445" height="940" decoding="async">
+        <img class="art" data-art="night" src="assets/art/night-wide.webp" alt="" width="2445" height="940" decoding="async">
+        <svg class="arc" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+          <path class="arc-done" d=""/>
+          <path class="arc-left" d=""/>
+        </svg>
+        <span class="body-marker" data-body="sun"></span>
+        <span class="arc-label arc-label-start"></span>
+        <span class="arc-label arc-label-end"></span>
+        <div class="ground-fade"></div>
+      </div>
+
+      <div class="sky-text">
+        <p class="dates">
+          <span class="date-greg">&nbsp;</span>
+          <span class="date-hijri" title="Calculated with the tabular Islamic calendar. Local moon sighting may differ by a day.">&nbsp;</span>
+        </p>
+        <div class="next">
+          <h1 class="next-name" id="next-name"><span class="visually-hidden">Next prayer: </span><span data-next-name>Dhuhr</span></h1>
+          <p class="next-time"><span data-next-time>&nbsp;</span><span class="ampm" data-next-ampm></span></p>
+        </div>
+        <p class="countdown" data-countdown>&nbsp;</p>
+        <div class="bar" role="progressbar" aria-label="Time since the last prayer" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar-fill"></span></div>
+      </div>
+    </section>
+
+    <div class="place">
+      <div class="place-inner">
+        <div class="place-where">
+          <p><span data-place-label>Prayer times for Makkah</span><span class="place-note">Muslim World League method, Shafi Asr</span></p>
+          <button class="link-button" type="button" data-locate>Use my location</button>
+          <p class="place-status" data-place-status role="status"></p>
+        </div>
+        <div class="scenes" role="group" aria-label="Preview the sky at another time of day">
+          <span class="scenes-label">See the sky at</span>
+          <button type="button" data-scene-pick="live" aria-pressed="true">Now</button>
+          <button type="button" data-scene-pick="dawn" aria-pressed="false">Dawn</button>
+          <button type="button" data-scene-pick="day" aria-pressed="false">Day</button>
+          <button type="button" data-scene-pick="evening" aria-pressed="false">Evening</button>
+          <button type="button" data-scene-pick="night" aria-pressed="false">Night</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="today" aria-labelledby="today-title">
+      <div class="today-copy">
+        <h2 id="today-title">The way to your five daily prayers</h2>
+        <p class="lede">Prayer is an Android app that works out each day's prayer times on your phone, rings an alarm for every prayer, and keeps a record of how you answered.</p>
+        <p>What you see above is the app's home screen, running live in your browser. The picture follows the time of day: dawn before sunrise, day until Asr, evening until Isha, and night after that.</p>
+      </div>
+      <div class="schedule">
+        <div class="schedule-head">
+          <h3>Today</h3>
+          <p data-schedule-count></p>
+        </div>
+        <ol class="rows" data-rows></ol>
+      </div>
+    </section>
+
+    <section class="how" id="how" aria-labelledby="how-title">
+      <h2 id="how-title">When the time comes</h2>
+      <p class="section-lede">Each prayer has its own alarm. You set it once, and it keeps ringing every day, even when the app is closed.</p>
+      <ol class="steps">
+        <li class="step">
+          <figure class="phone">
+            <img src="assets/screens/alarms.webp" alt="The Alarms screen with the next alarm, Fajr at 5:13 AM, ten minutes after the prayer time" width="780" height="1688" loading="lazy">
+          </figure>
+          <h3><span class="step-n">1</span>The alarm rings</h3>
+          <p>Turn each prayer's alarm on or off, set it to ring at the prayer time or a few minutes after, and pick its ringtone. Fajr alarms always ring before sunrise.</p>
+        </li>
+        <li class="step">
+          <figure class="phone phone-ringing" aria-label="The ringing alarm screen for Asr with the buttons I'm praying and Delay">
+            <div class="ringing" aria-hidden="true">
+              <p class="ringing-cue">It's time to pray!</p>
+              <p class="ringing-name">Asr</p>
+              <span class="ringing-btn ringing-pray">I'm praying</span>
+              <span class="ringing-btn ringing-delay">Delay</span>
+            </div>
+          </figure>
+          <h3><span class="step-n">2</span>You answer it</h3>
+          <p>Tap I'm praying, or tap Delay and choose how many minutes to wait, from 1 to 120. The alarm comes back when that time is up.</p>
+        </li>
+        <li class="step">
+          <figure class="phone">
+            <img src="assets/screens/history.webp" alt="The History screen, a grid of days and the five prayers, each square colored by how many reminders it took" width="780" height="1688" loading="lazy">
+          </figure>
+          <h3><span class="step-n">3</span>It goes in your history</h3>
+          <p>Every answer is saved, first on your phone and then to your account. The history grid colors each prayer by how many reminders it took.</p>
+        </li>
+      </ol>
+      <ul class="legend" aria-label="History colors">
+        <li><span style="--c:#A4D9BC"></span>First reminder</li>
+        <li><span style="--c:#8BCF75"></span>Second reminder</li>
+        <li><span style="--c:#BED064"></span>Third reminder</li>
+        <li><span style="--c:#FBB45E"></span>4+ reminders</li>
+        <li><span style="--c:#D56B6B"></span>Missed</li>
+        <li><span style="--c:#4FB3A9"></span>Prayed, without an alarm</li>
+      </ul>
+    </section>
+
+    <section class="details" aria-labelledby="details-title">
+      <h2 id="details-title">Built to be relied on</h2>
+      <dl class="facts">
+        <div>
+          <dt>Works offline</dt>
+          <dd>Prayer times are calculated on your phone from your location. The app keeps today's and tomorrow's schedule, so it needs no connection to show them.</dd>
+        </div>
+        <div>
+          <dt>Matches your local timetable</dt>
+          <dd>Muslim World League is the starting method. Change the calculation method and the Asr setting in Settings to match your mosque.</dd>
+        </div>
+        <div>
+          <dt>Keeps ringing in the background</dt>
+          <dd>The app schedules a week of alarms ahead and restores them after your phone restarts. You don't need to open it every day.</dd>
+        </div>
+        <div>
+          <dt>Hijri date over the picture</dt>
+          <dd>The Islamic date moves to the next day at sunset. It uses a calculated calendar, so a local moon sighting can differ by a day.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="screens" id="screens" aria-labelledby="screens-title">
+      <div class="screens-head">
+        <h2 id="screens-title">Inside the app</h2>
+        <p>Screens from the current build. Scroll sideways to see them all.</p>
+      </div>
+      <ul class="strip" tabindex="0" aria-label="App screenshots">
+        <li><figure class="phone"><img src="assets/screens/onboarding-1.webp" alt="Welcome screen with the Kaaba in an arch and the line: The prayer is the most important activity in our day" width="780" height="1688" loading="lazy"></figure><p>Welcome</p></li>
+        <li><figure class="phone"><img src="assets/screens/home-day.webp" alt="Home screen by day, with Dhuhr next and the sun on its path" width="780" height="1688" loading="lazy"></figure><p>Today, by day</p></li>
+        <li><figure class="phone"><img src="assets/screens/home-night.webp" alt="Home screen at night, with tomorrow's Fajr next and the moon on its path" width="780" height="1688" loading="lazy"></figure><p>Today, at night</p></li>
+        <li><figure class="phone"><img src="assets/screens/prayer-schedule.webp" alt="All five prayer times for the day, with Maghrib marked as next" width="780" height="1688" loading="lazy"></figure><p>The day's schedule</p></li>
+        <li><figure class="phone"><img src="assets/screens/alarm-editor.webp" alt="Fajr alarm editor with an on switch, a timing preview and the sunrise time" width="780" height="1688" loading="lazy"></figure><p>Alarm editor</p></li>
+        <li><figure class="phone"><img src="assets/screens/alarm-ringtone.webp" alt="Ringtone list with the chosen alarm sound selected" width="780" height="1688" loading="lazy"></figure><p>Ringtones</p></li>
+        <li><figure class="phone"><img src="assets/screens/settings.webp" alt="Settings with location, calculation method, Asr calculation and prayer reminders" width="780" height="1688" loading="lazy"></figure><p>Settings</p></li>
+        <li><figure class="phone"><img src="assets/screens/sign-in.webp" alt="Sign in screen with email, password and Continue with Google" width="780" height="1688" loading="lazy"></figure><p>Sign in</p></li>
+      </ul>
+    </section>
+
+    <section class="get" id="get" data-scene="night" aria-labelledby="get-title">
+      <div class="arch" aria-hidden="true">
+        <div class="arch-window"><img src="assets/art/night-720.webp" alt="" width="720" height="720" loading="lazy"></div>
+      </div>
+      <h2 id="get-title">This can be your persistent reminder, right in your pocket.</h2>
+      <div class="get-action">
+        <a class="button" data-download hidden href="#">Download for Android</a>
+        <p class="get-status" data-download-status>Prayer is in testing on Android. The public release is coming soon.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Prayer times on this page are calculated in your browser with the <a href="https://github.com/batoulapps/adhan-js">Adhan</a> library. Your location never leaves your device.</p>
+    <p>Typefaces: Outfit and Fraunces, under the SIL Open Font License.</p>
+  </footer>
+</body>
+</html>

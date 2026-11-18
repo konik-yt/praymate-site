@@ -132,7 +132,7 @@ a { color: inherit; }
 }
 /* The brand gives way to the band title as the hero collapses. */
 .brand { opacity: calc(1 - var(--band-o, 0)); }
-.brand-mark { width: 20px; height: 20px; fill: var(--earth); }
+.brand-mark { width: auto; height: 28px; }
 .header-link {
   display: inline-flex; align-items: center; min-height: 48px;
   font-size: 16px; font-weight: 500; text-decoration: none;

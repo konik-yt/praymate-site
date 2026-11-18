@@ -13,6 +13,7 @@ The prayer times are real. They are calculated in the browser with the same libr
 - `index.html`, `styles.css`, `app.js`: the whole site. No build step.
 - `terms.html`, `privacy.html`: the Terms and Conditions and the Privacy Policy, copied from the app's `lib/data/legal_documents.dart` (last updated 14 November 2026). When the app's text changes, copy the change here too.
 - `assets/art/`: the app's Kaaba artwork, upscaled 4x with Real-ESRGAN and saved as WebP. The `-wide-1400` and `-wide-2400` files extend each scene sideways for wide screens, at 1400 and 2400 pixels tall. The `-center` squares (1600, 2600 and 3600 pixels) sit over the middle of the wide art so the Kaaba stays sharp on large and high-density screens. The `-960` squares are for the scene picker and the closing arch.
+- `assets/logo.svg`: the Praymate mark, a prayer mat with a mihrab arch and a crescent. `assets/icon.svg` is the same mark on Delft Blue, used as the favicon, and `assets/icon-180.png` is the home screen icon for phones.
 - `assets/fonts/`: Outfit from the app, as woff2, with its license. The Fraunces headings load from Google Fonts.
 
 ## Colors

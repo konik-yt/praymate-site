@@ -24,11 +24,11 @@ const HIJRI_MONTHS = [
 ];
 // History colors from the app's PrayerResponseColors.
 const RESPONSES = {
-  first: { c: "#A4D9BC", icon: "check", label: "first reminder" },
-  second: { c: "#8BCF75", icon: "clock", label: "second reminder" },
-  third: { c: "#BED064", icon: "clock", label: "third reminder" },
-  more: { c: "#FBB45E", icon: "clock", label: "4 or more reminders" },
-  missed: { c: "#D56B6B", icon: "cross", label: "missed" },
+  first: { c: "#A4D9BC", label: "first reminder" },
+  second: { c: "#8BCF75", label: "second reminder" },
+  third: { c: "#BED064", label: "third reminder" },
+  more: { c: "#FBB45E", label: "4 or more reminders" },
+  missed: { c: "#D56B6B", label: "missed" },
 };
 // An example week, newest last.
 const WEEK = [
@@ -44,9 +44,6 @@ const ICONS = {
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
   horizon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 16a5 5 0 0 1 10 0M3 19.5h18M12 4.5v3M4.6 9.6l1.6 1.2M19.4 9.6l-1.6 1.2"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M15.5 3.5a8.5 8.5 0 1 0 5 14.6 7 7 0 0 1-5-14.6Z"/></svg>',
-  check: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>',
-  clock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.6"/><path d="M8 5v3.2l2 1.3"/></svg>',
-  cross: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4.5 4.5 7 7M11.5 4.5l-7 7"/></svg>',
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -170,7 +167,7 @@ function render() {
       const label = dateLabel(new Date(Date.UTC(date.y, date.m - 1, date.d, 12)), { day: "numeric", month: "short", timeZone: "UTC" });
       return `<tr><th scope="row">${label}</th>${day.map((r, j) => {
         const res = RESPONSES[r];
-        return `<td><span class="cell" style="--c:${res.c}" role="img" aria-label="${PRAYERS[j].name}, ${res.label}">${ICONS[res.icon]}</span></td>`;
+        return `<td><span class="cell" style="--c:${res.c}" role="img" aria-label="${PRAYERS[j].name}, ${res.label}"></span></td>`;
       }).join("")}</tr>`;
     }).join("");
   }
@@ -444,7 +441,6 @@ function logToHistory() {
   const res = RESPONSES.first;
   cell.style.setProperty("--c", res.c);
   cell.setAttribute("aria-label", `${PRAYERS[j].name}, ${res.label}`);
-  cell.innerHTML = ICONS[res.icon];
   cell.classList.remove("is-new");
   void cell.offsetWidth;
   cell.classList.add("is-new");

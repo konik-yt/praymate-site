@@ -624,8 +624,7 @@ a { color: inherit; }
 .grid th { font-size: 13px; font-weight: 500; color: var(--secondary); text-align: center; padding-bottom: 4px; }
 .grid th:first-child, .grid td:first-child { text-align: left; width: 22%; font-size: 14px; font-weight: 400; color: var(--secondary); }
 .grid td { padding: 0; }
-.cell { height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--c); color: #1C2032; }
-.cell svg { width: 16px; height: 16px; }
+.cell { display: block; height: 36px; border-radius: 10px; background: var(--c); }
 .cell.is-new { animation: cell-pop .8s var(--ease-out); }
 @keyframes cell-pop {
   0% { transform: scale(.6); box-shadow: 0 0 0 0 rgba(164, 217, 188, .9); }

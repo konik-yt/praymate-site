@@ -154,7 +154,7 @@ function render() {
   $("[data-locate]").textContent = place === MAKKAH ? "Use my location" : "Show Makkah";
 
   // Alarms: the next one that is on, then every prayer's switch.
-  alarmCtx = { list, tomorrowFajr: tomorrow.fajr, now };
+  alarmCtx = { list, tomorrow, now };
   renderAlarms();
 
   // The ringing screen shows the next prayer, unless it is mid-answer.
@@ -264,9 +264,11 @@ function setHead(html) {
 // rowsInPlace: the rows on the page already show the change, so only note it.
 function renderAlarms(rowsInPlace = false) {
   if (!alarmCtx) return;
-  const { list, tomorrowFajr, now } = alarmCtx;
+  const { list, tomorrow, now } = alarmCtx;
   const alarmAt = (p, at) => new Date(at.getTime() + ALARMS[p.key][0] * 60000);
-  const upcoming = [...list, { ...PRAYERS[0], at: tomorrowFajr, tomorrow: true }]
+  // Today's alarms, then all of tomorrow's, so an alarm that already rang
+  // today still shows as the next one if it is the only one on.
+  const upcoming = [...list, ...PRAYERS.map((p) => ({ ...p, at: tomorrow[p.key], tomorrow: true }))]
     .filter((p) => ALARMS[p.key][1])
     .map((p) => ({ ...p, ring: alarmAt(p, p.at) }))
     .find((p) => p.ring > now);

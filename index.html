@@ -20,6 +20,8 @@
     // The hero opens out of an arch on first load. Decide before the first
     // paint, so the page never flashes the full picture first.
     try {
+      // A reload starts at the top, so the opening is never played off screen.
+      if (!location.hash && "scrollRestoration" in history) history.scrollRestoration = "manual";
       if (matchMedia("(prefers-reduced-motion: no-preference)").matches && !location.hash) {
         document.documentElement.classList.add("is-revealing");
         // If app.js never runs, open the picture anyway.

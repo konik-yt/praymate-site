@@ -27,9 +27,11 @@
      scroll. B is the height of the picture's box, S the side of the square
      artwork, cx where the artwork's center sits across the page. The
      Kaaba's top sits at B - .34 S and its base at B - .1 S. */
+  /* The hero fills the screen. On a tall phone the scene grows with it, up
+     to twice the screen width, so the Kaaba stays near the text. */
   --cx: 50%;
-  --S0: 150vw;
-  --B0: calc(330px + var(--S0) * .4);
+  --B0: max(100svh, calc(330px + 60vw));
+  --S0: clamp(150vw, calc((var(--B0) - 330px) * 1.6), 210vw);
   --S1: 95vw;
   --B1: calc(130px + var(--S1) * .34);
   --T: calc(var(--B0) - var(--B1));   /* scroll distance of the collapse */
@@ -585,7 +587,7 @@ a { color: inherit; }
   :root {
     --gutter: 48px;
     --cx: 66%;
-    --B0: clamp(640px, 100svh, 1000px);
+    --B0: max(640px, 100svh);
     /* The wide art is four times as wide as S. At least .34 of the page
        width keeps it covering the page on very wide screens. */
     --S0: max(calc(var(--B0) * 1.45), 34vw);

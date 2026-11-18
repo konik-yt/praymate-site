@@ -18,6 +18,16 @@
   --gutter: 24px;
   --max: 1180px;
   --ease: cubic-bezier(.2, .7, .2, 1);
+
+  /* Hero sizes. 0 is Home, 1 is the band it shrinks to as you scroll.
+     B is the height of the picture's box, S the side of the square artwork.
+     The Kaaba's top sits at B - .34 S, so B1 leaves room for the title. */
+  --S0: 133vw;
+  --B0: calc(76px + var(--S0) * .9);
+  --S1: 95vw;
+  --B1: calc(190px + var(--S1) * .34);
+  --T: calc(var(--B0) - var(--B1));   /* scroll distance of the collapse */
+  --p: 0;                             /* collapse progress, set by app.js */
 }
 
 /* Time-of-day palettes. A section can set its own data-scene. */
@@ -79,6 +89,7 @@ a { color: inherit; }
 /* Header, over the sky */
 .site-header {
   position: absolute; inset: 0 0 auto 0; z-index: 5;
+  width: 100%;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
   padding: 20px var(--gutter);
@@ -96,17 +107,36 @@ a { color: inherit; }
 .site-nav .nav-cta { background: var(--earth); color: #251211; font-weight: 600; }
 .site-nav .nav-cta:hover { background: #FCC57F; }
 
-/* Hero: the app's Today header, at web scale */
+/* Hero: the app's Today header, at web scale. It stays pinned while the
+   page scrolls by T, and its picture shrinks from B0 to B1 over that
+   distance, so the content below stays attached to the picture's lower edge
+   and the Kaaba rises, like the app's switch from Home to another tab. */
+.intro { height: calc(var(--B0) + var(--T)); }
 .hero {
-  --S: 133vw;                       /* side of the square artwork */
-  position: relative;
-  height: calc(76px + var(--S) * .9);
+  position: sticky; top: 0;
+  height: var(--B0);
   overflow: hidden;
-  background: var(--sky-top);
+  background: var(--bg);
   color: var(--hero-text);
   transition: background-color .6s var(--ease);
 }
+.after { position: relative; z-index: 1; margin-top: calc(-1 * var(--T)); }
+.art-box {
+  position: absolute; inset: 0 0 auto 0;
+  height: calc(var(--B0) - var(--T) * var(--p));
+  overflow: hidden;
+  background: var(--sky-top);
+  transition: background-color .6s var(--ease);
+}
+/* Darkens the top of the sky for the title, as the app's band does. */
+.art-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(10, 20, 40, .34), rgba(10, 20, 40, .08) 45%, transparent 62%);
+  opacity: var(--p);
+  pointer-events: none;
+}
 .stage {
+  --S: calc(var(--S0) + (var(--S1) - var(--S0)) * var(--p));
   position: absolute; left: 50%; bottom: calc(var(--S) * -.1);
   width: var(--S); height: var(--S);
   transform: translateX(-50%);
@@ -129,7 +159,9 @@ a { color: inherit; }
   transition: background .6s var(--ease);
 }
 
-/* Sun and moon path, in the artwork's own coordinates */
+/* Sun and moon path, in the artwork's own coordinates. It leaves with the
+   Home text. */
+.arc, .body-marker, .arc-label { opacity: var(--home-o, 1); }
 .arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .arc path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
 .arc-done { stroke: #FCE3B0; stroke-width: 3.5; }
@@ -166,7 +198,23 @@ a { color: inherit; }
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
   padding: 92px var(--gutter) 0;
   text-shadow: 0 1px 14px rgba(10, 16, 40, .18);
+  opacity: var(--home-o, 1);
+  transform: translateY(calc(var(--home-y, 0) * 1px));
 }
+.sky-text[data-gone] { visibility: hidden; }
+
+/* The title that rises in on the band, like a tab page's title. */
+.band-text {
+  position: absolute; z-index: 2; left: 0; right: 0; top: 92px;
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 0 var(--gutter);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, .25);
+  opacity: var(--band-o, 0);
+  transform: translateY(calc(var(--band-y, 10) * 1px));
+  pointer-events: none;
+}
+.band-title { font-size: clamp(28px, 3.3vw, 46px); font-weight: 600; letter-spacing: -.02em; line-height: 1.1; max-width: 22ch; }
+.band-sub { margin-top: 6px; font-size: 15px; font-weight: 500; opacity: .92; }
 .dates { display: flex; flex-direction: column; gap: 2px; }
 .date-greg { font-size: 15px; font-weight: 500; opacity: .92; }
 .date-hijri { font-size: 19px; font-weight: 600; }
@@ -375,12 +423,15 @@ a { color: inherit; }
 /* Wider screens */
 @media (min-width: 760px) {
   :root { --gutter: 40px; }
-  .hero {
-    --hero-h: clamp(680px, 100svh, 1020px);
-    --S: calc(var(--hero-h) * 1.18);
-    height: var(--hero-h);
+  :root {
+    --B0: clamp(680px, 100svh, 1020px);
+    --S0: calc(var(--B0) * 1.18);
+    --S1: calc(var(--B0) * .6);
+    --B1: calc(196px + var(--S1) * .34);
   }
   .sky-text { padding-top: 108px; }
+  .band-text { top: 104px; }
+  .band-title { max-width: none; }
   .date-greg { font-size: 17px; }
   .date-hijri { font-size: 24px; }
   .countdown { font-size: 21px; margin-top: 18px; }
@@ -404,7 +455,18 @@ a { color: inherit; }
   .scenes button { flex: 1 1 auto; padding: 0 8px; font-size: 14px; }
 }
 
+/* The band title replaces the section heading when the hero collapses. */
+@media (prefers-reduced-motion: no-preference) {
+  .today-title {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+}
+
+/* With reduced motion the hero stays as it is and scrolls away. */
 @media (prefers-reduced-motion: reduce) {
+  :root { --T: 0px; --p: 0; }
+  .band-text { display: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
 }

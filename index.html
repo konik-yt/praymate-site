@@ -15,25 +15,28 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
 
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="Prayer, home">
-      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3.2a9 9 0 1 0 5.3 15.1A7.6 7.6 0 0 1 15.5 3.2Z"/></svg>
-      <span class="brand-word">Prayer</span>
-    </a>
-    <nav class="site-nav" aria-label="Main">
-      <a href="#how">How it works</a>
-      <a href="#screens">Screens</a>
-      <a class="nav-cta" href="#get">Get the app</a>
-    </nav>
-  </header>
-
   <main id="main">
+    <!-- The hero pins while you scroll and shrinks into a band, the way the
+         app's artwork resizes when you go from Home to another tab. -->
+    <div class="intro">
     <section class="hero" id="top" aria-labelledby="next-name">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="Prayer, home">
+          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3.2a9 9 0 1 0 5.3 15.1A7.6 7.6 0 0 1 15.5 3.2Z"/></svg>
+          <span class="brand-word">Prayer</span>
+        </a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="#how">How it works</a>
+          <a href="#screens">Screens</a>
+          <a class="nav-cta" href="#get">Get the app</a>
+        </nav>
+      </header>
+      <div class="art-box">
       <div class="stage" aria-hidden="true">
-        <img class="art" data-art="dawn" src="assets/art/dawn-wide.webp" alt="" width="2445" height="940" decoding="async">
-        <img class="art" data-art="day" src="assets/art/daytime-wide.webp" alt="" width="2445" height="940" decoding="async">
-        <img class="art" data-art="evening" src="assets/art/evening-wide.webp" alt="" width="2445" height="940" decoding="async">
-        <img class="art" data-art="night" src="assets/art/night-wide.webp" alt="" width="2445" height="940" decoding="async">
+        <img class="art" data-art="dawn" src="assets/art/dawn-wide.webp" alt="" width="4700" height="940" decoding="async">
+        <img class="art" data-art="day" src="assets/art/daytime-wide.webp" alt="" width="4700" height="940" decoding="async">
+        <img class="art" data-art="evening" src="assets/art/evening-wide.webp" alt="" width="4700" height="940" decoding="async">
+        <img class="art" data-art="night" src="assets/art/night-wide.webp" alt="" width="4700" height="940" decoding="async">
         <svg class="arc" viewBox="0 0 1000 1000" preserveAspectRatio="none">
           <path class="arc-done" d=""/>
           <path class="arc-left" d=""/>
@@ -42,6 +45,13 @@
         <span class="arc-label arc-label-start"></span>
         <span class="arc-label arc-label-end"></span>
         <div class="ground-fade"></div>
+      </div>
+      <div class="art-shade" aria-hidden="true"></div>
+      </div>
+
+      <div class="band-text" aria-hidden="true">
+        <p class="band-title">The way to your five daily prayers</p>
+        <p class="band-sub">Prayer times and alarms for Android</p>
       </div>
 
       <div class="sky-text">
@@ -57,7 +67,9 @@
         <div class="bar" role="progressbar" aria-label="Time since the last prayer" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar-fill"></span></div>
       </div>
     </section>
+    </div>
 
+    <div class="after">
     <div class="place">
       <div class="place-inner">
         <div class="place-where">
@@ -78,7 +90,7 @@
 
     <section class="today" aria-labelledby="today-title">
       <div class="today-copy">
-        <h2 id="today-title">The way to your five daily prayers</h2>
+        <h2 id="today-title" class="today-title">The way to your five daily prayers</h2>
         <p class="lede">Prayer is an Android app that works out each day's prayer times on your phone, rings an alarm for every prayer, and keeps a record of how you answered.</p>
         <p>What you see above is the app's home screen, running live in your browser. The picture follows the time of day: dawn before sunrise, day until Asr, evening until Isha, and night after that.</p>
       </div>
@@ -181,6 +193,7 @@
         <p class="get-status" data-download-status>Prayer is in testing on Android. The public release is coming soon.</p>
       </div>
     </section>
+    </div>
   </main>
 
   <footer class="site-footer">

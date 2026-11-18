@@ -253,7 +253,57 @@ function locate() {
   );
 }
 
+// Scrolling the hero away plays the app's switch from Home to a tab
+// (lib/navigation/tab_motion.dart), with scroll distance in place of time.
+// Of the 490 ms switch, Home's text fades and drops 10 px over the first
+// 140 ms, and the arriving title fades in from 110 to 370 ms while rising
+// 10 px until the end. The picture's box shrinks in step with the scroll, so
+// the content below stays attached to it.
+const easeIn = (t) => t * t * t;
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const appCurve = (t) => { // Cubic(.2, .8, .2, 1)
+  let lo = 0, hi = 1, x = t;
+  for (let i = 0; i < 20; i++) {
+    x = (lo + hi) / 2;
+    const bx = 3 * (1 - x) * (1 - x) * x * .2 + 3 * (1 - x) * x * x * .2 + x * x * x;
+    if (bx < t) lo = x; else hi = x;
+  }
+  return 3 * (1 - x) * (1 - x) * x * .8 + 3 * (1 - x) * x * x + x * x * x;
+};
+const span = (p, from, to) => Math.min(1, Math.max(0, (p - from) / (to - from)));
+
+function setupCollapse() {
+  const motion = window.matchMedia("(prefers-reduced-motion: no-preference)");
+  const intro = $(".intro");
+  const hero = $(".hero");
+  const skyText = $(".sky-text");
+  let queued = false;
+
+  function apply() {
+    queued = false;
+    const travel = intro.offsetHeight - hero.offsetHeight;
+    const p = motion.matches && travel > 0 ? Math.min(1, Math.max(0, window.scrollY / travel)) : 0;
+    const leave = easeIn(span(p, 0, 140 / 490));
+    const enter = easeOut(span(p, 110 / 490, 370 / 490));
+    const rise = appCurve(span(p, 110 / 490, 1));
+    const style = root.style;
+    style.setProperty("--p", p.toFixed(4));
+    style.setProperty("--home-o", (1 - leave).toFixed(3));
+    style.setProperty("--home-y", (10 * leave).toFixed(2));
+    style.setProperty("--band-o", enter.toFixed(3));
+    style.setProperty("--band-y", (10 * (1 - rise)).toFixed(2));
+    // Hidden text should not take clicks or screen reader focus.
+    skyText.toggleAttribute("data-gone", leave >= 1);
+  }
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(apply); } };
+  window.addEventListener("scroll", queue, { passive: true });
+  window.addEventListener("resize", queue);
+  motion.addEventListener("change", queue);
+  apply();
+}
+
 function start() {
+  setupCollapse();
   document.querySelectorAll("[data-scene-pick]").forEach((b) => {
     b.addEventListener("click", () => setPreview(b.dataset.scenePick));
   });

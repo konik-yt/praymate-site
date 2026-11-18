@@ -411,6 +411,10 @@ a { color: inherit; }
 
 /* Alarms */
 .alarms { max-width: 500px; width: 100%; display: grid; gap: 8px; }
+.alarm-rows { display: grid; gap: 8px; }
+/* The Next alarm card fades out, changes, and fades back in. */
+.alarm-head { transition: opacity .2s var(--ease-io), transform .2s var(--ease-io); }
+.alarm-head.is-fading { opacity: 0; transform: translateY(4px); }
 .alarm-next {
   background: var(--raised); color: var(--text);
   border-radius: 28px; padding: 26px 28px 24px; margin-bottom: 6px;
@@ -472,6 +476,7 @@ a { color: inherit; }
 
 .switch {
   flex: none; width: 50px; height: 30px; border-radius: 999px; padding: 4px; border: 0; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   background: var(--track); display: flex;
   transition: background-color .4s var(--ease-io);
 }

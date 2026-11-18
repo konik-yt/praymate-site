@@ -222,7 +222,9 @@ const CHEVRON = '<svg class="alarm-chevron" viewBox="0 0 16 16" aria-hidden="tru
 let alarmCtx = null;
 let openAlarm = null;
 let justOpened = null;
-let alarmsHtml = "";
+let headHtml = "";
+let rowsHtml = "";
+let headTimer = 0;
 
 function offsetText(mins) {
   if (!mins) return "at prayer time";
@@ -233,7 +235,28 @@ function offsetText(mins) {
   return `${length} ${mins < 0 ? "before" : "after"}`;
 }
 
-function renderAlarms() {
+// Swap the Next alarm card with a short fade. Taps that come while it is
+// faded out only change what it fades back in with.
+function setHead(html) {
+  if (html === headHtml) return;
+  const first = !headHtml;
+  headHtml = html;
+  const slot = $("[data-alarm-head]");
+  if (first || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    slot.innerHTML = html;
+    return;
+  }
+  if (headTimer) return;
+  slot.classList.add("is-fading");
+  headTimer = setTimeout(() => {
+    slot.innerHTML = headHtml;
+    slot.classList.remove("is-fading");
+    headTimer = 0;
+  }, 200);
+}
+
+// rowsInPlace: the rows on the page already show the change, so only note it.
+function renderAlarms(rowsInPlace = false) {
   if (!alarmCtx) return;
   const { list, tomorrowFajr, now } = alarmCtx;
   const alarmAt = (p, at) => new Date(at.getTime() + ALARMS[p.key][0] * 60000);
@@ -279,13 +302,14 @@ function renderAlarms() {
     </div>`;
   }).join("");
 
-  const html = head + rows;
+  setHead(head);
   justOpened = null;
-  if (html === alarmsHtml) return;
-  alarmsHtml = html;
+  if (rows === rowsHtml) return;
+  rowsHtml = rows;
+  if (rowsInPlace) return;
 
   // Rebuilding the list would drop keyboard focus, so put it back.
-  const box = $("[data-alarms]");
+  const box = $("[data-alarm-rows]");
   const active = document.activeElement;
   let refocus = null;
   if (active && box.contains(active)) {
@@ -293,7 +317,7 @@ function renderAlarms() {
       if (active.dataset[k]) refocus = `[data-${k}="${active.dataset[k]}"]`;
     }
   }
-  box.innerHTML = html;
+  box.innerHTML = rows;
   if (refocus) {
     let el = box.querySelector(refocus);
     if (!el || el.disabled) el = box.querySelector(`.alarm-row.is-open [data-step]:not(:disabled)`);
@@ -307,14 +331,19 @@ function setupAlarms() {
     if (!b) return;
     const d = b.dataset;
     if (d.toggle) {
-      const on = !ALARMS[d.toggle][1];
+      const [mins, was] = ALARMS[d.toggle];
+      const on = !was;
       ALARMS[d.toggle][1] = on;
-      // Let the switch slide before the list is rebuilt.
-      // Slide the switch and grey the row out before the list is rebuilt.
+      // Change the row where it is instead of rebuilding the list, so the
+      // switch slides cleanly however fast it is tapped.
+      const row = b.closest(".alarm-row");
       b.classList.toggle("is-on", on);
-      b.closest(".alarm-row").classList.toggle("is-off", !on);
       b.setAttribute("aria-checked", String(on));
-      setTimeout(renderAlarms, 420);
+      row.classList.toggle("is-off", !on);
+      row.querySelectorAll("[data-offset]").forEach((o) => {
+        o.setAttribute("aria-pressed", String(on && Number(o.dataset.offset.split(":")[1]) === mins));
+      });
+      renderAlarms(true);
     } else if (d.edit) {
       openAlarm = openAlarm === d.edit ? null : d.edit;
       justOpened = openAlarm;

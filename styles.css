@@ -575,10 +575,9 @@ a { color: inherit; }
   font-size: clamp(32px, 4.4vw, 52px); line-height: 1.14; letter-spacing: -.015em;
 }
 .get-action { margin-top: 36px; display: grid; gap: 14px; justify-items: center; }
-.get-status { color: #C4BDCB; max-width: 30rem; font-size: 16px; }
+.get-action:has(> [hidden]:only-child) { display: none; }
 
 .site-footer { color: #9E97A8; font-size: 14px; padding: 0 0 40px; }
-.site-footer p { max-width: 40rem; margin: 0 auto; }
 .site-footer a { color: var(--cream); }
 
 /* Wider screens: the Kaaba moves to the right and grows. */
@@ -679,6 +678,6 @@ a { color: inherit; }
 }
 
 /* Links to the legal pages at the foot of the home page */
-.footer-links { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 24px; }
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 24px; }
 .footer-links a { color: var(--cream); text-decoration: none; }
 .footer-links a:hover { text-decoration: underline; text-underline-offset: 4px; }

@@ -576,7 +576,6 @@ function start() {
     const link = $("[data-download]");
     link.href = DOWNLOAD_URL;
     link.hidden = false;
-    $("[data-download-status]").hidden = true;
   }
 
   render();

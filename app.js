@@ -191,10 +191,28 @@ function reveal(imgs) {
   clearTimeout(window.revealFallback);
   const ready = Promise.all(imgs.map((img) => (img.complete ? null : img.decode().catch(() => {}))));
   Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
-    requestAnimationFrame(() => root.classList.add("is-open"));
-    // The zoom, the darkening and the text take about 4.4 s in all.
-    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 4600);
+    $(".hero").style.setProperty("--k", portalScale().toFixed(2));
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("is-open")));
+    // The zoom, the darkening and the text take about 4.8 s in all.
+    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 5000);
   });
+}
+
+// The smallest scale at which the arch window, grown from the middle of the
+// hero, covers all four corners. Its top is a half circle as wide as it is.
+function portalScale() {
+  const hero = $(".hero");
+  const arch = $(".portal-arch");
+  const w = hero.offsetWidth / 2, v = hero.offsetHeight / 2;
+  const a = arch.offsetWidth, h = arch.offsetHeight;
+  if (!a || !h) return 8;
+  for (let k = 1; k < 60; k += 0.05) {
+    const r = (k * a) / 2;
+    const cy = -k * (h / 2 - a / 2); // centre of the half circle
+    const top = -v >= cy || Math.hypot(w, -v - cy) <= r;
+    if (w <= r && v <= (k * h) / 2 && top) return k * 1.05;
+  }
+  return 60;
 }
 
 // Alarms you can change. Tap a prayer for the app's Change alarm time

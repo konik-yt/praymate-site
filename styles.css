@@ -296,15 +296,15 @@ a { color: inherit; }
 /* On first load the Kaaba waits behind a small arch window in the middle
    of the screen, and the page zooms into it. The dark cover around the
    window grows until the window is bigger than the screen. The scene behind
-   stays still until the zoom is three quarters done (--pan-at), then grows a
+   stays still until the zoom is a quarter done (--pan-at), then grows a
    little and moves the Kaaba to its place at about the window's pace,
-   slowing to a stop once the window is gone. The picture darkens while it
-   moves, and the text comes in as it settles. Only transform
+   slowing to a stop once the window is gone. The picture darkens as the
+   window leaves the screen, and the text comes in as the Kaaba settles. Only transform
    and opacity change, so the browser runs it on the graphics card and it
    stays smooth. app.js adds is-open once the picture has loaded, and sets
    --k, the scale at which the window covers the whole screen. */
 .hero {
-  --zoom: 1.2s; --pan-at: calc(var(--zoom) * .75); --pan: 1.6s;
+  --zoom: 1.2s; --pan-at: calc(var(--zoom) * .25); --pan: 1.6s;
   --text-in: calc(var(--pan-at) + var(--pan) * .6);
 }
 .portal { display: none; }
@@ -331,7 +331,7 @@ a { color: inherit; }
   transition: translate var(--pan) var(--ease-pan) var(--pan-at), scale var(--pan) var(--ease-pan) var(--pan-at);
 }
 .is-revealing.is-open .art-dim, .is-revealing.is-open .art-shade {
-  opacity: 1; transition: opacity .9s var(--ease-io) var(--pan-at);
+  opacity: 1; transition: opacity .9s var(--ease-io) calc(var(--zoom) - .3s);
 }
 .is-revealing.is-open .site-header,
 .is-revealing.is-open .hero-text > * {

@@ -2,15 +2,16 @@
 
 # Praymate
 
-The website for Prayer, the Android app for the five daily prayers.
+The website for Praymate, the Android app for the five daily prayers.
 
-The page opens with the app's home screen running live in the browser. It calculates today's prayer times with the same library and settings as the app (Adhan, Muslim World League, Shafi Asr), shows the next prayer with a countdown, moves the sun or moon along its path, and picks the dawn, day, evening or night artwork the same way the app does. Visitors see Makkah times until they choose Use my location. The location stays in their browser.
+The page opens on the Kaaba artwork for the current time of day, with the Praymate name beside it. As you scroll, the picture shrinks into a band and the Kaaba rises, the same motion as the app's switch from Home to another tab. Five features follow, one at a time: prayer times, alarms, answering an alarm, history, and the sky that follows the day.
+
+The prayer times are real. They are calculated in the browser with the same library and settings as the app (Adhan, Muslim World League, Shafi Asr), and the artwork is picked the same way the app picks it. Visitors see Makkah times until they choose Use my location. The location stays in their browser.
 
 ## Files
 
 - `index.html`, `styles.css`, `app.js`: the whole site. No build step.
 - `assets/art/`: the app's Kaaba artwork as WebP. The `-wide` versions extend the scene sideways for wide screens.
-- `assets/screens/`: screenshots from the app's `docs/screenshots/`.
 - `assets/fonts/`: Outfit and Fraunces from the app, as woff2, with their licenses.
 
 ## Colors

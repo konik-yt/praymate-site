@@ -1,13 +1,13 @@
-// Live prayer times for the hero and the Today list.
-// Mirrors the app: adhan calculation, Muslim World League with Shafi Asr,
-// artwork chosen from Fajr, sunrise, Asr and Isha, and a tabular Hijri date
-// that moves forward at sunset.
+// Praymate website.
+// Prayer times follow the app: adhan calculation, Muslim World League with
+// Shafi Asr, artwork chosen from Fajr, sunrise, Asr and Isha, and a tabular
+// Hijri date that moves forward at sunset.
 
 // Set this to the Play Store or APK link when the app is released.
 const DOWNLOAD_URL = "";
 
-const MAKKAH = { lat: 21.4225, lng: 39.8262, tz: "Asia/Riyadh", label: "Prayer times for Makkah" };
-const STORE_KEY = "prayer-site-location";
+const MAKKAH = { lat: 21.4225, lng: 39.8262, tz: "Asia/Riyadh", label: "Times for Makkah" };
+const STORE_KEY = "praymate-site-location";
 const PRAYERS = [
   { key: "fajr", name: "Fajr", icon: "horizon" },
   { key: "dhuhr", name: "Dhuhr", icon: "sun" },
@@ -15,20 +15,39 @@ const PRAYERS = [
   { key: "maghrib", name: "Maghrib", icon: "horizon" },
   { key: "isha", name: "Isha", icon: "moon" },
 ];
+// Example alarm settings for the alarms feature: minutes after the prayer
+// time, and whether the alarm is on.
+const ALARMS = { fajr: [10, true], dhuhr: [0, true], asr: [5, true], maghrib: [0, false], isha: [15, true] };
 const HIJRI_MONTHS = [
   "Muharram", "Safar", "Rabi al-Awwal", "Rabi al-Thani", "Jumada al-Awwal", "Jumada al-Thani",
   "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhul Qadah", "Dhul Hijjah",
+];
+// History colors from the app's PrayerResponseColors.
+const RESPONSES = {
+  first: { c: "#A4D9BC", icon: "check", label: "first reminder" },
+  second: { c: "#8BCF75", icon: "clock", label: "second reminder" },
+  third: { c: "#BED064", icon: "clock", label: "third reminder" },
+  more: { c: "#FBB45E", icon: "clock", label: "4 or more reminders" },
+  missed: { c: "#D56B6B", icon: "cross", label: "missed" },
+};
+// An example week, newest last.
+const WEEK = [
+  ["first", "first", "second", "first", "third"],
+  ["second", "first", "first", "more", "first"],
+  ["first", "missed", "first", "first", "second"],
+  ["third", "first", "second", "first", "first"],
+  ["first", "first", "first", "second", "first"],
+  ["more", "second", "first", "first", "missed"],
+  ["first", "first", "first", "first", "first"],
 ];
 const ICONS = {
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
   horizon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 16a5 5 0 0 1 10 0M3 19.5h18M12 4.5v3M4.6 9.6l1.6 1.2M19.4 9.6l-1.6 1.2"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M15.5 3.5a8.5 8.5 0 1 0 5 14.6 7 7 0 0 1-5-14.6Z"/></svg>',
-  up: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4"/></svg>',
-  down: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4"/></svg>',
+  check: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3.5 8.5 3 3 6-7"/></svg>',
+  clock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="5.6"/><path d="M8 5v3.2l2 1.3"/></svg>',
+  cross: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m4.5 4.5 7 7M11.5 4.5l-7 7"/></svg>',
 };
-
-// Arc geometry in the artwork's 1000 x 1000 square, matched to the app.
-const ARC = { cx: 500, cy: 600, rx: 315, ry: 128 };
 
 const $ = (sel) => document.querySelector(sel);
 const root = document.documentElement;
@@ -91,36 +110,8 @@ function clock(instant) {
   return { time, ampm };
 }
 
-function shortClock(instant) {
-  return clock(instant).time;
-}
-
-function duration(ms) {
-  const mins = Math.max(0, Math.ceil(ms / 60000));
-  if (mins < 1) return "less than a minute";
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return h ? `${h}h ${m}m` : `${m}m`;
-}
-
-function arcPoint(t) {
-  const a = Math.PI * (1 - Math.min(1, Math.max(0, t)));
-  return { x: ARC.cx + ARC.rx * Math.cos(a), y: ARC.cy - ARC.ry * Math.sin(a) };
-}
-
-function drawArc(t, body, startLabel, endLabel) {
-  const start = arcPoint(0);
-  const end = arcPoint(1);
-  const at = arcPoint(t);
-  const r = `${ARC.rx} ${ARC.ry} 0 0 1`;
-  $(".arc-done").setAttribute("d", t > 0.002 ? `M${start.x} ${start.y} A${r} ${at.x} ${at.y}` : "");
-  $(".arc-left").setAttribute("d", t < 0.998 ? `M${at.x} ${at.y} A${r} ${end.x} ${end.y}` : "");
-  const marker = $(".body-marker");
-  marker.dataset.body = body;
-  marker.style.left = `${at.x / 10}%`;
-  marker.style.top = `${at.y / 10}%`;
-  $(".arc-label-start").innerHTML = startLabel;
-  $(".arc-label-end").innerHTML = endLabel;
+function dateLabel(instant, opts) {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: place.tz, ...opts }).format(instant);
 }
 
 function render() {
@@ -129,23 +120,11 @@ function render() {
   const todayDate = wallDate(now, place.tz);
   const today = timesFor(todayDate);
   const tomorrow = timesFor(shiftDate(todayDate, 1));
-  const yesterday = timesFor(shiftDate(todayDate, -1));
 
-  // Next prayer, and the one before it for the progress bar.
   const list = PRAYERS.map((p) => ({ ...p, at: today[p.key] }));
-  let nextIndex = list.findIndex((p) => p.at > now);
-  let next;
-  let prevAt;
-  let isTomorrow = false;
-  if (nextIndex === -1) {
-    next = { ...PRAYERS[0], at: tomorrow.fajr };
-    prevAt = today.isha;
-    isTomorrow = true;
-  } else {
-    next = list[nextIndex];
-    prevAt = nextIndex === 0 ? yesterday.isha : list[nextIndex - 1].at;
-  }
-  const progress = (now - prevAt) / (next.at - prevAt);
+  let next = list.find((p) => p.at > now);
+  const isTomorrow = !next;
+  if (!next) next = { ...PRAYERS[0], at: tomorrow.fajr };
 
   // Scene, as the app picks its artwork.
   let scene = "day";
@@ -154,47 +133,12 @@ function render() {
   else if (now >= today.asr) scene = "evening";
   const shown = preview || scene;
   if (root.dataset.scene !== shown) root.dataset.scene = shown;
-  const themeColor = getComputedStyle(root).getPropertyValue("--sky-top").trim();
-  document.querySelector('meta[name="theme-color"]').setAttribute("content", themeColor);
+  document.querySelector('meta[name="theme-color"]')
+    .setAttribute("content", getComputedStyle(root).getPropertyValue("--sky-top").trim());
 
-  // Sun by day, moon by night, on the same path.
-  if (preview) {
-    const demo = { dawn: [0.94, "moon"], day: [0.42, "sun"], evening: [0.8, "sun"], night: [0.38, "moon"] }[preview];
-    const isSun = demo[1] === "sun";
-    root.dataset.sky = isSun ? "day" : "night";
-    drawArc(demo[0], demo[1],
-      `${isSun ? ICONS.up : ICONS.down}<span>${isSun ? "Sunrise" : "Sunset"}</span>`,
-      `<span>${isSun ? "Sunset" : "Sunrise"}</span>${isSun ? ICONS.down : ICONS.up}`);
-  } else if (now >= today.sunrise && now < today.sunset) {
-    root.dataset.sky = "day";
-    drawArc((now - today.sunrise) / (today.sunset - today.sunrise), "sun",
-      `${ICONS.up}<span>${shortClock(today.sunrise)}</span>`,
-      `<span>${shortClock(today.sunset)}</span>${ICONS.down}`);
-  } else {
-    root.dataset.sky = "night";
-    const from = now >= today.sunset ? today.sunset : yesterday.sunset;
-    const to = now >= today.sunset ? tomorrow.sunrise : today.sunrise;
-    drawArc((now - from) / (to - from), "moon",
-      `${ICONS.down}<span>${shortClock(from)}</span>`,
-      `<span>${shortClock(to)}</span>${ICONS.up}`);
-  }
-
-  // Dates. The Hijri day starts at sunset.
-  const fmt = (opts) => new Intl.DateTimeFormat("en-GB", { timeZone: place.tz, ...opts }).format(now);
-  $(".date-greg").textContent = `${fmt({ weekday: "long" })}, ${fmt({ day: "numeric" })} ${fmt({ month: "long" })}`;
-  $(".date-hijri").textContent = hijri(now >= today.sunset ? shiftDate(todayDate, 1) : todayDate);
-
-  // Next prayer.
-  const nextClock = clock(next.at);
-  $("[data-next-name]").textContent = next.name;
-  $("[data-next-time]").textContent = nextClock.time;
-  $("[data-next-ampm]").textContent = nextClock.ampm;
-  $("[data-countdown]").textContent = `${isTomorrow ? "Tomorrow, in" : "in"} ${duration(next.at - now)}`;
-  const pct = Math.round(Math.min(1, Math.max(0, progress)) * 100);
-  $(".bar-fill").style.width = `${pct}%`;
-  $(".bar").setAttribute("aria-valuenow", String(pct));
-
-  // Today's list.
+  // Prayer times. The Hijri day starts at sunset.
+  $("[data-date]").textContent = `${dateLabel(now, { weekday: "long" })}, ${dateLabel(now, { day: "numeric" })} ${dateLabel(now, { month: "long" })}`;
+  $("[data-hijri]").textContent = hijri(now >= today.sunset ? shiftDate(todayDate, 1) : todayDate);
   const passed = list.filter((p) => p.at <= now).length;
   $("[data-schedule-count]").textContent = passed === 5 ? "All 5 times passed" : `${passed} of 5 passed`;
   $("[data-rows]").innerHTML = list.map((p) => {
@@ -207,16 +151,57 @@ function render() {
       <span class="row-time">${c.time}<small>${c.ampm}</small></span>
     </li>`;
   }).join("");
-
   $("[data-place-label]").textContent = place.label;
   $("[data-locate]").textContent = place === MAKKAH ? "Use my location" : "Show Makkah";
+
+  // Alarms: the next one that is on, then every prayer's switch.
+  const alarmAt = (p, at) => new Date(at.getTime() + ALARMS[p.key][0] * 60000);
+  const upcoming = [...list, { ...PRAYERS[0], at: tomorrow.fajr, tomorrow: true }]
+    .filter((p) => ALARMS[p.key][1])
+    .map((p) => ({ ...p, ring: alarmAt(p, p.at) }))
+    .find((p) => p.ring > now);
+  const ring = clock(upcoming.ring);
+  const prayerAt = clock(upcoming.at);
+  const offsetText = (mins) => (mins ? `${mins} min after` : "At prayer time");
+  $("[data-alarms]").innerHTML = `
+    <div class="alarm-next">
+      <p class="alarm-next-label">Next alarm</p>
+      <p class="alarm-next-time">${ring.time}<small>${ring.ampm}</small></p>
+      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? ", tomorrow" : ""}</p>
+      <div class="alarm-chips"><span>Scheduled</span><span>Prayer at ${prayerAt.time} ${prayerAt.ampm}</span></div>
+    </div>
+    ${list.map((p) => {
+      const [mins, on] = ALARMS[p.key];
+      const r = clock(alarmAt(p, p.at));
+      return `<div class="alarm-row${on ? "" : " is-off"}">
+        <span class="row-icon" aria-hidden="true">${ICONS[p.icon]}</span>
+        <span class="alarm-row-text"><strong>${p.name}</strong><span>${on ? `${r.time} ${r.ampm}, ${offsetText(mins).toLowerCase()}` : "Off"}</span></span>
+        <span class="switch${on ? " is-on" : ""}" role="img" aria-label="${p.name} alarm ${on ? "on" : "off"}"></span>
+      </div>`;
+    }).join("")}`;
+
+  // The ringing screen shows the next prayer.
+  $("[data-ringing-name]").textContent = next.name;
+
+  // History: an example week ending today.
+  if (!$("[data-grid]").childElementCount) {
+    $("[data-grid]").innerHTML = WEEK.map((day, i) => {
+      const date = shiftDate(todayDate, i - WEEK.length + 1);
+      const label = dateLabel(new Date(Date.UTC(date.y, date.m - 1, date.d, 12)), { day: "numeric", month: "short", timeZone: "UTC" });
+      return `<tr><th scope="row">${label}</th>${day.map((r, j) => {
+        const res = RESPONSES[r];
+        return `<td><span class="cell" style="--c:${res.c}" role="img" aria-label="${PRAYERS[j].name}, ${res.label}">${ICONS[res.icon]}</span></td>`;
+      }).join("")}</tr>`;
+    }).join("");
+  }
 }
 
 function setPreview(scene) {
   preview = scene === "live" ? null : scene;
-  document.querySelectorAll("[data-scene-pick]").forEach((b) => {
+  document.querySelectorAll(".scenes [data-scene-pick]").forEach((b) => {
     b.setAttribute("aria-pressed", String(b.dataset.scenePick === scene));
   });
+  $(".scenes-reset").hidden = !preview;
   render();
 }
 
@@ -240,7 +225,7 @@ function locate() {
         lat: Math.round(pos.coords.latitude * 1000) / 1000,
         lng: Math.round(pos.coords.longitude * 1000) / 1000,
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        label: "Prayer times for your location",
+        label: "Times for your location",
       };
       savePlace(place);
       status.textContent = "";
@@ -276,7 +261,7 @@ function setupCollapse() {
   const motion = window.matchMedia("(prefers-reduced-motion: no-preference)");
   const intro = $(".intro");
   const hero = $(".hero");
-  const skyText = $(".sky-text");
+  const heroText = $(".hero-text");
   let queued = false;
 
   function apply() {
@@ -292,8 +277,8 @@ function setupCollapse() {
     style.setProperty("--home-y", (10 * leave).toFixed(2));
     style.setProperty("--band-o", enter.toFixed(3));
     style.setProperty("--band-y", (10 * (1 - rise)).toFixed(2));
-    // Hidden text should not take clicks or screen reader focus.
-    skyText.toggleAttribute("data-gone", leave >= 1);
+    // Hidden text should not take clicks or keyboard focus.
+    heroText.toggleAttribute("data-gone", leave >= 1);
   }
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(apply); } };
   window.addEventListener("scroll", queue, { passive: true });

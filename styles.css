@@ -1,5 +1,6 @@
-/* Prayer website. Colors come from the app's HomePalette (lib/theme/home_palette.dart):
-   each time of day has its own ground, box, text and accent colors. */
+/* Praymate website. Colors come from the app's HomePalette
+   (lib/theme/home_palette.dart): each time of day has its own ground, box,
+   text and accent colors, and the page follows the time of day. */
 
 @font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
@@ -19,13 +20,15 @@
   --max: 1180px;
   --ease: cubic-bezier(.2, .7, .2, 1);
 
-  /* Hero sizes. 0 is Home, 1 is the band it shrinks to as you scroll.
-     B is the height of the picture's box, S the side of the square artwork.
-     The Kaaba's top sits at B - .34 S, so B1 leaves room for the title. */
-  --S0: 133vw;
-  --B0: calc(76px + var(--S0) * .9);
+  /* Hero sizes. 0 is the opening view, 1 the band it shrinks to as you
+     scroll. B is the height of the picture's box, S the side of the square
+     artwork, cx where the artwork's center sits across the page. The
+     Kaaba's top sits at B - .34 S and its base at B - .1 S. */
+  --cx: 50%;
+  --S0: 150vw;
+  --B0: calc(370px + var(--S0) * .4);
   --S1: 95vw;
-  --B1: calc(190px + var(--S1) * .34);
+  --B1: calc(150px + var(--S1) * .34);
   --T: calc(var(--B0) - var(--B1));   /* scroll distance of the collapse */
   --p: 0;                             /* collapse progress, set by app.js */
 }
@@ -86,6 +89,24 @@ a { color: inherit; }
 }
 .skip:focus { top: 12px; }
 
+.button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 54px; padding: 0 28px; border-radius: 18px;
+  background: var(--earth); color: #251211;
+  font-weight: 600; font-size: 17px; text-decoration: none;
+  transition: background-color .2s var(--ease);
+}
+.button:hover { background: #FCC57F; }
+.button-quiet { background: rgba(16, 24, 48, .28); color: var(--hero-text); }
+.button-quiet:hover { background: rgba(16, 24, 48, .4); }
+
+.chip-button {
+  font: inherit; font-weight: 600; font-size: 15px;
+  min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--track); color: var(--accent);
+}
+.chip-button:hover { background: var(--surface); }
+
 /* Header, over the sky */
 .site-header {
   position: absolute; inset: 0 0 auto 0; z-index: 5;
@@ -97,7 +118,7 @@ a { color: inherit; }
 }
 .brand { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; min-height: 48px; }
 .brand-mark { width: 26px; height: 26px; fill: var(--earth); }
-.brand-word { font-weight: 600; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; }
+.brand-word { font-weight: 600; font-size: 15px; letter-spacing: .3em; text-transform: uppercase; }
 .site-nav { display: flex; align-items: center; gap: 4px; }
 .site-nav a {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px;
@@ -107,10 +128,10 @@ a { color: inherit; }
 .site-nav .nav-cta { background: var(--earth); color: #251211; font-weight: 600; }
 .site-nav .nav-cta:hover { background: #FCC57F; }
 
-/* Hero: the app's Today header, at web scale. It stays pinned while the
-   page scrolls by T, and its picture shrinks from B0 to B1 over that
-   distance, so the content below stays attached to the picture's lower edge
-   and the Kaaba rises, like the app's switch from Home to another tab. */
+/* Hero. It stays pinned while the page scrolls by T, and its picture
+   shrinks from B0 to B1 over that distance, so the content below stays
+   attached to the picture's lower edge and the Kaaba rises, like the app's
+   switch from Home to another tab. */
 .intro { height: calc(var(--B0) + var(--T)); }
 .hero {
   position: sticky; top: 0;
@@ -121,6 +142,7 @@ a { color: inherit; }
   transition: background-color .6s var(--ease);
 }
 .after { position: relative; z-index: 1; margin-top: calc(-1 * var(--T)); }
+
 .art-box {
   position: absolute; inset: 0 0 auto 0;
   height: calc(var(--B0) - var(--T) * var(--p));
@@ -128,16 +150,9 @@ a { color: inherit; }
   background: var(--sky-top);
   transition: background-color .6s var(--ease);
 }
-/* Darkens the top of the sky for the title, as the app's band does. */
-.art-shade {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(10, 20, 40, .34), rgba(10, 20, 40, .08) 45%, transparent 62%);
-  opacity: var(--p);
-  pointer-events: none;
-}
 .stage {
   --S: calc(var(--S0) + (var(--S1) - var(--S0)) * var(--p));
-  position: absolute; left: 50%; bottom: calc(var(--S) * -.1);
+  position: absolute; left: var(--cx); bottom: calc(var(--S) * -.1);
   width: var(--S); height: var(--S);
   transform: translateX(-50%);
 }
@@ -154,58 +169,43 @@ a { color: inherit; }
 [data-scene="night"] .art[data-art="night"] { opacity: 1; }
 
 .ground-fade {
-  position: absolute; left: -50vw; right: -50vw; bottom: 9.5%; height: 6%;
+  position: absolute; left: -300%; right: -300%; bottom: 9.5%; height: 6%;
   background: linear-gradient(to bottom, transparent, var(--bg));
   transition: background .6s var(--ease);
 }
+/* Darkens the top of the sky for the band title, as the app's band does. */
+.art-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(10, 20, 40, .34), rgba(10, 20, 40, .08) 45%, transparent 62%);
+  opacity: var(--p);
+}
 
-/* Sun and moon path, in the artwork's own coordinates. It leaves with the
-   Home text. */
-.arc, .body-marker, .arc-label { opacity: var(--home-o, 1); }
-.arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.arc path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
-.arc-done { stroke: #FCE3B0; stroke-width: 3.5; }
-.arc-left { stroke: rgba(255, 249, 239, .75); stroke-width: 2.5; stroke-dasharray: 2 9; }
-[data-sky="night"] .arc-done { stroke: var(--cream); }
-
-.body-marker {
-  position: absolute; width: 7.2%; aspect-ratio: 1; border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: left 1.2s var(--ease), top 1.2s var(--ease);
-}
-.body-marker[data-body="sun"] {
-  background: radial-gradient(circle, #FFF6CF 0 32%, #FDE08F 40%, rgba(253, 224, 143, .35) 52%, rgba(253, 224, 143, 0) 70%);
-}
-.body-marker[data-body="moon"] {
-  background:
-    radial-gradient(circle at 62% 50%, #46536C 0 25%, transparent 26%),
-    radial-gradient(circle at 50% 50%, #E9E4DA 0 30%, rgba(233, 228, 218, 0) 31%),
-    radial-gradient(circle, rgba(109, 122, 148, .9) 0 46%, transparent 47%);
-}
-.arc-label {
-  position: absolute; top: 61%;
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: clamp(12px, 1.25vw, 16px); font-weight: 600; color: var(--hero-text);
-  transform: translateY(-50%);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .25);
-}
-.arc-label svg { width: 1em; height: 1em; }
-.arc-label-start { left: max(15.5%, calc(50% - 50vw + 40px)); transform: translate(-50%, -50%); }
-.arc-label-end { left: min(82%, calc(50% + 50vw - 40px)); transform: translate(-50%, -50%); }
-
-.sky-text {
+.hero-text {
   position: relative; z-index: 2;
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
   padding: 92px var(--gutter) 0;
-  text-shadow: 0 1px 14px rgba(10, 16, 40, .18);
   opacity: var(--home-o, 1);
   transform: translateY(calc(var(--home-y, 0) * 1px));
 }
-.sky-text[data-gone] { visibility: hidden; }
+.hero-text[data-gone] { visibility: hidden; }
+.wordmark {
+  font-size: clamp(60px, 11vw, 172px);
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: .9;
+  margin-left: -.04em;
+  text-shadow: 0 2px 30px rgba(10, 16, 40, .18);
+}
+.hero-line {
+  margin-top: 28px; max-width: 34ch;
+  font-size: clamp(17px, 1.5vw, 21px); font-weight: 500; line-height: 1.45;
+  text-shadow: 0 1px 14px rgba(10, 16, 40, .25);
+}
+.hero-actions { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* The title that rises in on the band, like a tab page's title. */
 .band-text {
-  position: absolute; z-index: 2; left: 0; right: 0; top: 92px;
+  position: absolute; z-index: 2; left: 0; right: 0; top: 84px;
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
   padding: 0 var(--gutter);
   text-shadow: 0 1px 12px rgba(0, 0, 0, .25);
@@ -213,179 +213,144 @@ a { color: inherit; }
   transform: translateY(calc(var(--band-y, 10) * 1px));
   pointer-events: none;
 }
-.band-title { font-size: clamp(28px, 3.3vw, 46px); font-weight: 600; letter-spacing: -.02em; line-height: 1.1; max-width: 22ch; }
-.band-sub { margin-top: 6px; font-size: 15px; font-weight: 500; opacity: .92; }
-.dates { display: flex; flex-direction: column; gap: 2px; }
-.date-greg { font-size: 15px; font-weight: 500; opacity: .92; }
-.date-hijri { font-size: 19px; font-weight: 600; }
-.next {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-  margin-top: 14px;
-}
-.next-name {
-  font-size: clamp(54px, min(13vw, 17svh), 160px);
-  font-weight: 700;
-  letter-spacing: -.035em;
-  line-height: .92;
-}
-.next-time { font-size: clamp(36px, 7vw, 76px); font-weight: 600; letter-spacing: -.02em; white-space: nowrap; }
-.ampm { font-size: .42em; font-weight: 600; margin-left: .18em; letter-spacing: 0; }
-.countdown { margin-top: 12px; font-size: 17px; font-weight: 600; }
-.bar {
-  margin-top: 10px; height: 6px; border-radius: 999px;
-  background: rgba(255, 249, 239, .28); overflow: hidden;
-}
-.bar-fill {
-  display: block; height: 100%; width: 0; border-radius: inherit;
-  background: #FCE3B0; transition: width 1.2s var(--ease);
-}
+.band-title { font-size: clamp(30px, 3.3vw, 46px); font-weight: 700; letter-spacing: -.03em; line-height: 1.05; }
+.band-sub { margin-top: 4px; font-size: 15px; font-weight: 500; opacity: .92; }
 
-/* Location and sky preview, on the sand */
-.place { position: relative; z-index: 2; }
-.place-inner {
+/* Features, one at a time */
+.feature {
   max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
-  padding: 4px var(--gutter) 0;
-  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 18px 32px;
+  padding: 88px var(--gutter) 0;
+  display: grid; gap: 36px;
 }
-.place-where { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
-.place-where > p:first-child { display: flex; flex-direction: column; font-weight: 600; }
-.place-note { font-weight: 400; font-size: 14px; color: var(--secondary); }
-.place-status { flex-basis: 100%; font-size: 14px; color: var(--secondary); }
-.place-status:empty { display: none; }
-.link-button {
-  font: inherit; font-weight: 600; font-size: 15px;
-  min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0; cursor: pointer;
-  background: var(--track); color: var(--accent);
+.feature:first-child { padding-top: 40px; }
+.feature h2 {
+  font-size: clamp(34px, 4.6vw, 60px); font-weight: 600;
+  letter-spacing: -.03em; line-height: 1.02;
+  color: var(--accent); max-width: 13ch;
 }
-.link-button:hover { background: var(--surface); }
+.feature-copy { display: grid; gap: 18px; align-content: center; }
+.feature-copy p { max-width: 32rem; font-size: 19px; line-height: 1.5; color: var(--secondary); }
+.feature-copy .feature-note { font-size: 15px; }
+.feature-visual { min-width: 0; }
 
-.scenes { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.scenes-label { font-size: 14px; color: var(--secondary); margin-right: 6px; }
-.scenes button {
-  font: inherit; font-size: 15px; font-weight: 500;
-  min-height: 44px; padding: 0 16px; border-radius: 999px; border: 0; cursor: pointer;
-  background: transparent; color: var(--text);
-  transition: background-color .25s var(--ease), color .25s var(--ease);
-}
-.scenes button:hover { background: var(--track); }
-.scenes button[aria-pressed="true"] { background: var(--action); color: var(--on-action); font-weight: 600; }
-
-/* Today: copy and the five-prayer list */
-.today {
-  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
-  padding: 72px var(--gutter) 96px;
-  display: grid; gap: 48px;
-}
-.today h2, .how h2, .details h2, .screens h2 {
-  font-size: clamp(30px, 4.2vw, 46px); letter-spacing: -.02em; color: var(--accent);
-}
-.today-copy { max-width: 34rem; display: grid; gap: 18px; align-content: start; }
-.today-copy p { color: var(--secondary); }
-.today-copy .lede { font-size: 21px; line-height: 1.45; color: var(--text); }
-
-.schedule-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
-.schedule-head h3 { font-size: 24px; }
-.schedule-head p { font-weight: 600; color: var(--accent); font-size: 16px; }
+/* Prayer times */
+.schedule { max-width: 520px; width: 100%; }
+.schedule-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.schedule-date { font-size: 15px; color: var(--secondary); }
+.schedule-hijri { font-size: 21px; font-weight: 600; }
+.schedule-count { font-weight: 600; color: var(--accent); font-size: 15px; white-space: nowrap; }
 .rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .row {
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
-  padding: 14px 22px 14px 14px; border-radius: 24px;
+  padding: 13px 22px 13px 13px; border-radius: 24px;
   background: var(--surface);
   transition: background-color .6s var(--ease);
 }
 .row-icon {
-  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
   background: var(--track); color: var(--accent);
 }
-.row-icon svg { width: 24px; height: 24px; }
-.row-name { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; }
-.row-time { font-size: 22px; font-weight: 600; white-space: nowrap; }
-.row-time small { font-size: 14px; margin-left: 3px; font-weight: 600; }
+.row-icon svg { width: 23px; height: 23px; }
+.row-name { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 600; }
+.row-time { font-size: 21px; font-weight: 600; white-space: nowrap; }
+.row-time small { font-size: 13px; margin-left: 3px; font-weight: 600; }
 .row.is-past .row-name, .row.is-past .row-time { opacity: .55; }
 .row.is-next { background: var(--delft); color: var(--cream); }
 .row.is-next .row-icon { background: rgba(246, 241, 234, .12); color: var(--earth); }
 .pill {
-  font-size: 14px; font-weight: 600; padding: 3px 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 999px;
   background: rgba(251, 180, 94, .18); color: var(--earth);
 }
+.place { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.place > p:first-child { display: flex; flex-direction: column; font-weight: 600; }
+.place-note { font-weight: 400; font-size: 14px; color: var(--secondary); }
+.place-status { flex-basis: 100%; font-size: 14px; color: var(--secondary); }
+.place-status:empty { display: none; }
 
-/* How it works: a real sequence, so the steps are numbered */
-.how {
-  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
-  padding: 0 var(--gutter) 104px;
+/* Alarms */
+.alarms { max-width: 520px; width: 100%; display: grid; gap: 10px; }
+.alarm-next {
+  background: var(--delft); color: var(--cream);
+  border-radius: 30px; padding: 26px 28px 24px; margin-bottom: 6px;
 }
-.section-lede { margin-top: 14px; max-width: 36rem; color: var(--secondary); font-size: 19px; }
-.steps {
-  list-style: none; margin: 56px 0 0; padding: 0;
-  display: grid; gap: 64px;
+.alarm-next-label { color: var(--earth); font-weight: 600; font-size: 15px; }
+.alarm-next-time { font-size: clamp(48px, 7vw, 72px); font-weight: 600; letter-spacing: -.03em; line-height: 1; color: var(--earth); margin-top: 8px; }
+.alarm-next-time small { font-size: .45em; margin-left: .15em; letter-spacing: 0; }
+.alarm-next-name { margin-top: 12px; font-size: 20px; font-weight: 600; }
+.alarm-chips { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.alarm-chips span { font-size: 14px; font-weight: 600; padding: 6px 14px; border-radius: 999px; background: rgba(246, 241, 234, .12); color: #CFC8D6; }
+.alarm-chips span:first-child { background: rgba(251, 180, 94, .18); color: var(--earth); }
+.alarm-row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
+  padding: 12px 16px 12px 12px; border-radius: 22px; background: var(--surface);
+  transition: background-color .6s var(--ease);
 }
-.step { display: grid; gap: 14px; max-width: 30rem; align-content: start; }
-.step h3 { display: flex; align-items: center; gap: 12px; font-size: 22px; margin-top: 18px; }
-.step p { color: var(--secondary); }
-.step-n {
-  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
-  background: var(--action); color: var(--on-action); font-size: 16px; font-weight: 700; flex: none;
+.alarm-row .row-icon { width: 40px; height: 40px; border-radius: 12px; }
+.alarm-row-text { display: grid; line-height: 1.25; }
+.alarm-row-text strong { font-size: 17px; }
+.alarm-row-text span { font-size: 14px; color: var(--secondary); }
+.alarm-row.is-off .alarm-row-text { opacity: .55; }
+.switch {
+  width: 52px; height: 32px; border-radius: 999px; padding: 4px;
+  background: var(--track); display: flex;
 }
+.switch::after { content: ""; width: 24px; height: 24px; border-radius: 50%; background: var(--secondary); opacity: .6; }
+.switch.is-on { background: var(--action); justify-content: flex-end; }
+.switch.is-on::after { background: var(--earth); opacity: 1; }
+[data-scene="night"] .switch.is-on::after { background: var(--deep); }
 
-.phone {
-  margin: 0; width: min(260px, 72vw);
-  aspect-ratio: 780 / 1688;
-  border-radius: 36px; padding: 7px;
-  background: var(--deep);
-  box-shadow: 0 30px 60px -30px rgba(28, 32, 50, .55);
+/* Answering */
+.ringing {
+  max-width: 400px; width: 100%; border-radius: 40px; padding: 56px 30px 34px;
+  background: #101824; color: #F6F3EC; text-align: center;
+  box-shadow: 0 40px 80px -40px rgba(16, 24, 36, .7);
 }
-.phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 29px; }
-
-.phone-ringing .ringing {
-  height: 100%; border-radius: 29px; background: #101824; color: #F6F3EC;
-  display: flex; flex-direction: column; justify-content: center; align-items: stretch;
-  padding: 0 18px; text-align: center;
-}
-.ringing .ringing-cue { color: var(--earth); font-size: 17px; font-weight: 600; }
-.ringing .ringing-name { color: #F6F3EC; font-size: 54px; font-weight: 700; letter-spacing: -.02em; margin: 4px 0 30px; }
-.ringing-btn {
-  display: grid; place-items: center; min-height: 54px; border-radius: 16px;
-  color: #101824; font-weight: 600; font-size: 16px; margin-top: 10px;
-}
+.ringing-cue { color: var(--earth); font-size: 18px; font-weight: 600; }
+.ringing-name { font-size: clamp(56px, 8vw, 76px); font-weight: 700; letter-spacing: -.03em; line-height: 1.05; margin: 6px 0 34px; }
+.ringing-buttons { display: grid; gap: 10px; }
+.ringing-btn { display: grid; place-items: center; min-height: 58px; border-radius: 18px; color: #101824; font-weight: 600; font-size: 17px; }
 .ringing-pray { background: var(--prayed); }
 .ringing-delay { background: var(--earth); }
+.delay-pick {
+  margin-top: 22px; padding: 10px; border-radius: 20px; background: #1A2534;
+  display: grid; gap: 2px; font-size: 16px; color: #B2BECD;
+}
+.delay-pick span { padding: 6px; }
+.delay-pick .is-picked { background: #223142; border-radius: 12px; color: #F6F3EC; font-weight: 600; font-size: 19px; }
 
-.legend {
-  list-style: none; margin: 56px 0 0; padding: 0;
-  display: flex; flex-wrap: wrap; gap: 10px 24px; font-size: 15px; color: var(--secondary);
-}
-.legend li { display: inline-flex; align-items: center; gap: 8px; }
-.legend span { width: 16px; height: 16px; border-radius: 5px; background: var(--c); }
+/* History */
+.history { margin: 0; max-width: 560px; width: 100%; padding: 22px 22px 20px; border-radius: 30px; background: var(--surface); transition: background-color .6s var(--ease); }
+.grid { border-collapse: separate; border-spacing: 6px; table-layout: fixed; margin: -6px; width: calc(100% + 12px); }
+.grid th { font-size: 13px; font-weight: 500; color: var(--secondary); text-align: center; padding-bottom: 4px; }
+.grid th:first-child, .grid td:first-child { text-align: left; width: 22%; font-size: 14px; color: var(--secondary); }
+.grid td { padding: 0; }
+.cell { height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--c); color: #1C2032; }
+.cell svg { width: 16px; height: 16px; }
+.legend { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--secondary); }
+.legend li { display: inline-flex; align-items: center; gap: 7px; }
+.legend span { width: 14px; height: 14px; border-radius: 4px; background: var(--c); }
 
-/* Facts: a definition list, not cards */
-.details {
-  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
-  padding: 0 var(--gutter) 104px;
+/* Sky */
+.scenes-wrap { max-width: 520px; width: 100%; }
+.scenes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 16px; }
+.scenes button {
+  font: inherit; color: var(--text); background: none; border: 0; padding: 0; cursor: pointer;
+  display: grid; gap: 10px; justify-items: center; text-align: center;
 }
-.facts { margin: 36px 0 0; display: grid; gap: 28px 64px; }
-.facts div { border-top: 2px solid var(--track); padding-top: 18px; max-width: 34rem; }
-.facts dt { font-size: 20px; font-weight: 600; color: var(--accent); }
-.facts dd { margin: 6px 0 0; color: var(--secondary); }
-
-/* Screens strip */
-.screens { padding: 0 0 104px; }
-.screens-head {
-  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter);
-  display: grid; gap: 10px;
+.scenes img {
+  width: 100%; aspect-ratio: 1 / 1.1; object-fit: cover; object-position: 50% 78%;
+  border-radius: 999px 999px 22px 22px;
+  outline: 3px solid transparent; outline-offset: 4px;
+  transition: outline-color .25s var(--ease), transform .35s var(--ease);
 }
-.screens-head p { color: var(--secondary); }
-.strip {
-  list-style: none; margin: 36px 0 0; padding: 8px max(var(--gutter), calc((100vw - var(--max)) / 2)) 24px;
-  display: flex; gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory;
-  scroll-padding-inline: max(var(--gutter), calc((100vw - var(--max)) / 2));
-  scrollbar-width: thin; scrollbar-color: var(--track) transparent;
-}
-.strip li { flex: none; scroll-snap-align: start; }
-.strip .phone { width: 220px; }
-.strip p { margin-top: 14px; font-weight: 500; color: var(--secondary); text-align: center; }
+.scenes button:hover img { transform: translateY(-3px); }
+.scenes button span { font-weight: 600; font-size: 16px; }
+.scenes button[aria-pressed="true"] img { outline-color: var(--accent); }
+.scenes-reset { margin-top: 20px; }
 
 /* Closing, always at night, like the app's welcome screens */
 .get {
+  margin-top: 140px;
   background: linear-gradient(to bottom, #2E3249 0%, #5D4E57 26%, #2A2B3E 40%, var(--deep) 52%);
   color: var(--cream);
   padding: 96px var(--gutter) 104px;
@@ -407,11 +372,6 @@ a { color: inherit; }
   font-size: clamp(32px, 5vw, 56px); line-height: 1.12; letter-spacing: -.01em;
 }
 .get-action { margin-top: 36px; display: grid; gap: 14px; justify-items: center; }
-.button {
-  display: inline-flex; align-items: center; justify-content: center; min-height: 56px; padding: 0 32px;
-  border-radius: 18px; background: var(--earth); color: #251211; font-weight: 600; font-size: 17px; text-decoration: none;
-}
-.button:hover { background: #FCC57F; }
 .get-status { color: #C4BDCB; max-width: 32rem; }
 
 .site-footer {
@@ -420,47 +380,40 @@ a { color: inherit; }
 }
 .site-footer a { color: var(--cream); }
 
-/* Wider screens */
+/* Wider screens: the Kaaba moves to the right and grows. */
 @media (min-width: 760px) {
-  :root { --gutter: 40px; }
   :root {
-    --B0: clamp(680px, 100svh, 1020px);
-    --S0: calc(var(--B0) * 1.18);
+    --gutter: 40px;
+    --cx: 66%;
+    --B0: clamp(640px, 100svh, 1000px);
+    --S0: calc(var(--B0) * 1.45);
     --S1: calc(var(--B0) * .6);
-    --B1: calc(196px + var(--S1) * .34);
+    --B1: calc(190px + var(--S1) * .34);
   }
-  .sky-text { padding-top: 108px; }
-  .band-text { top: 104px; }
-  .band-title { max-width: none; }
-  .date-greg { font-size: 17px; }
-  .date-hijri { font-size: 24px; }
-  .countdown { font-size: 21px; margin-top: 18px; }
-  .bar { height: 7px; max-width: 520px; }
-  .today { grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-  .steps { grid-template-columns: repeat(3, 1fr); gap: 40px; }
-  .facts { grid-template-columns: 1fr 1fr; }
-  .strip .phone { width: 240px; }
+  .hero-text { padding-top: clamp(110px, 16svh, 170px); }
+  .hero-line, .hero-actions { max-width: min(34rem, 44vw); }
+  .band-text { top: 100px; }
+  .feature { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 72px; align-items: center; padding-top: 140px; }
+  .feature:first-child { padding-top: 64px; }
+  .feature-flip .feature-copy { order: 2; }
+  .feature-visual { display: flex; justify-content: center; }
+  .scenes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .scenes button span { font-size: 15px; }
 }
 
 @media (max-width: 520px) {
   .site-nav a:not(.nav-cta) { display: none; }
   .brand-word { font-size: 14px; }
-  .sky-text { padding-top: 84px; }
-  .next-time { font-size: 34px; }
   .row { padding: 12px 16px 12px 12px; gap: 12px; }
   .row-name { font-size: 18px; gap: 8px; }
   .row-time { font-size: 19px; }
-  .scenes { width: 100%; gap: 4px; }
-  .scenes-label { flex-basis: 100%; }
-  .scenes button { flex: 1 1 auto; padding: 0 8px; font-size: 14px; }
-}
-
-/* The band title replaces the section heading when the hero collapses. */
-@media (prefers-reduced-motion: no-preference) {
-  .today-title {
-    position: absolute; width: 1px; height: 1px; overflow: hidden;
-    clip-path: inset(50%); white-space: nowrap;
-  }
+  .history { padding: 16px 14px; }
+  .grid th { font-size: 11px; }
+  .grid th:first-child, .grid td:first-child { font-size: 12px; }
+  .cell { height: 32px; }
+  .hero-line { margin-top: 20px; }
+  .hero-actions { gap: 8px; margin-top: 22px; }
+  .hero-actions .button { min-height: 50px; padding: 0 18px; font-size: 16px; }
 }
 
 /* With reduced motion the hero stays as it is and scrolls away. */

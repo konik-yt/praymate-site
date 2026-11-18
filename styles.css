@@ -24,6 +24,7 @@
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-io: cubic-bezier(.65, 0, .3, 1);
   --ease-zoom: cubic-bezier(.32, 0, .67, 0);   /* ease in: starts slow, ends fast */
+  --ease-pan: cubic-bezier(.35, 0, .25, 1);     /* picks up like the zoom, then settles */
 
   /* Hero sizes. 0 is the opening view, 1 the band it shrinks to as you
      scroll. B is the height of the picture's box, S the side of the square
@@ -296,14 +297,15 @@ a { color: inherit; }
    of the screen, and the page zooms into it. The dark cover around the
    window grows until the window is bigger than the screen. The scene behind
    stays still until the zoom is three quarters done (--pan-at), then grows a
-   little and moves the Kaaba to its place, making room for the text, which
-   comes in as it moves. The picture darkens as the zoom ends. Only transform
+   little and moves the Kaaba to its place at about the window's pace,
+   slowing to a stop once the window is gone. The picture darkens while it
+   moves, and the text comes in as it settles. Only transform
    and opacity change, so the browser runs it on the graphics card and it
    stays smooth. app.js adds is-open once the picture has loaded, and sets
    --k, the scale at which the window covers the whole screen. */
 .hero {
-  --zoom: 1.4s; --pan-at: calc(var(--zoom) * .75); --pan: .8s;
-  --text-in: calc(var(--pan-at) + .25s);
+  --zoom: 1.2s; --pan-at: calc(var(--zoom) * .75); --pan: 1.6s;
+  --text-in: calc(var(--pan-at) + var(--pan) * .6);
 }
 .portal { display: none; }
 .is-revealing .portal { display: block; position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
@@ -326,10 +328,10 @@ a { color: inherit; }
 .is-revealing.is-open .portal-arch { scale: var(--k, 8); transition: scale var(--zoom) var(--ease-zoom); }
 .is-revealing.is-open .stage {
   translate: 0px 0px; scale: 1;
-  transition: translate var(--pan) var(--ease-io) var(--pan-at), scale var(--pan) var(--ease-io) var(--pan-at);
+  transition: translate var(--pan) var(--ease-pan) var(--pan-at), scale var(--pan) var(--ease-pan) var(--pan-at);
 }
 .is-revealing.is-open .art-dim, .is-revealing.is-open .art-shade {
-  opacity: 1; transition: opacity .8s var(--ease-io) calc(var(--zoom) - .5s);
+  opacity: 1; transition: opacity .9s var(--ease-io) var(--pan-at);
 }
 .is-revealing.is-open .site-header,
 .is-revealing.is-open .hero-text > * {

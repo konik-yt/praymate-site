@@ -11,6 +11,7 @@ The prayer times are real. They are calculated in the browser with the same libr
 ## Files
 
 - `index.html`, `styles.css`, `app.js`: the whole site. No build step.
+- `terms.html`, `privacy.html`: the Terms and Conditions and the Privacy Policy, copied from the app's `lib/data/legal_documents.dart` (last updated 14 November 2026). When the app's text changes, copy the change here too.
 - `assets/art/`: the app's Kaaba artwork, upscaled 4x with Real-ESRGAN and saved as WebP. The `-wide-1400` and `-wide-2400` files extend each scene sideways for wide screens, at 1400 and 2400 pixels tall. The `-center` squares (1600, 2600 and 3600 pixels) sit over the middle of the wide art so the Kaaba stays sharp on large and high-density screens. The `-960` squares are for the scene picker and the closing arch.
 - `assets/fonts/`: Outfit from the app, as woff2, with its license. The Fraunces headings load from Google Fonts.
 
@@ -29,3 +30,5 @@ Then open http://localhost:8000.
 ## Before launch
 
 Set `DOWNLOAD_URL` at the top of `app.js` to the Play Store or APK link. The Download for Android button stays hidden until it has a value.
+
+In `terms.html` and `privacy.html`, replace `[Developer name]` and `[Contact email]` with the real values. They are the same placeholders the app's `legalOwner` and `legalContact` still use.

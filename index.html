@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-scene="day">
+<html lang="en" data-scene="dawn">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Praymate: an alarm for each daily prayer</title>
   <meta name="description" content="Praymate is an Android app that works out the five daily prayer times on your phone, rings an alarm for each one, and keeps a quiet record of how you answered.">
-  <meta name="theme-color" content="#3984D4">
+  <meta name="theme-color" content="#17184D">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,12 +45,20 @@
           <div class="stage">
             <img class="art" data-art="dawn" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
               data-srcset="assets/art/dawn-wide-1400.webp 5600w, assets/art/dawn-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="dawn" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) min(145vh, 1450px), 150vw"
+              data-srcset="assets/art/dawn-center-1600.webp 1600w, assets/art/dawn-center-2600.webp 2600w, assets/art/dawn-center-3600.webp 3600w">
             <img class="art" data-art="day" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
               data-srcset="assets/art/daytime-wide-1400.webp 5600w, assets/art/daytime-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="day" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) min(145vh, 1450px), 150vw"
+              data-srcset="assets/art/daytime-center-1600.webp 1600w, assets/art/daytime-center-2600.webp 2600w, assets/art/daytime-center-3600.webp 3600w">
             <img class="art" data-art="evening" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
               data-srcset="assets/art/evening-wide-1400.webp 5600w, assets/art/evening-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="evening" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) min(145vh, 1450px), 150vw"
+              data-srcset="assets/art/evening-center-1600.webp 1600w, assets/art/evening-center-2600.webp 2600w, assets/art/evening-center-3600.webp 3600w">
             <img class="art" data-art="night" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
               data-srcset="assets/art/night-wide-1400.webp 5600w, assets/art/night-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="night" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) min(145vh, 1450px), 150vw"
+              data-srcset="assets/art/night-center-1600.webp 1600w, assets/art/night-center-2600.webp 2600w, assets/art/night-center-3600.webp 3600w">
             <div class="ground-fade"></div>
           </div>
           <div class="art-shade"></div>
@@ -190,17 +198,17 @@
         <section class="feature" aria-labelledby="f-sky">
           <div class="feature-copy">
             <h2 id="f-sky">A sky that keeps time.</h2>
-            <p>Dawn, day, evening and night, following the sun where you are. Pick one to see this page change with it.</p>
+            <p>Dawn, day, evening and night, following the sun where you are. This page opens at dawn. Pick another scene, or let it follow the time of day.</p>
           </div>
           <div class="feature-visual">
             <div class="scenes-wrap">
               <div class="scenes" role="group" aria-label="Show the page at a time of day">
-                <button type="button" data-scene-pick="dawn" aria-pressed="false"><img src="assets/art/dawn-960.webp" alt="" width="960" height="960" loading="lazy"><span>Dawn</span></button>
+                <button type="button" data-scene-pick="dawn" aria-pressed="true"><img src="assets/art/dawn-960.webp" alt="" width="960" height="960" loading="lazy"><span>Dawn</span></button>
                 <button type="button" data-scene-pick="day" aria-pressed="false"><img src="assets/art/daytime-960.webp" alt="" width="960" height="960" loading="lazy"><span>Day</span></button>
                 <button type="button" data-scene-pick="evening" aria-pressed="false"><img src="assets/art/evening-960.webp" alt="" width="960" height="960" loading="lazy"><span>Evening</span></button>
                 <button type="button" data-scene-pick="night" aria-pressed="false"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"><span>Night</span></button>
               </div>
-              <button class="text-button scenes-reset" type="button" data-scene-pick="live" hidden>Back to the current time</button>
+              <button class="text-button scenes-reset" type="button" data-scene-pick="live">Follow the time of day</button>
             </div>
           </div>
         </section>

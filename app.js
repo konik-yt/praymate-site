@@ -53,7 +53,7 @@ const $ = (sel) => document.querySelector(sel);
 const root = document.documentElement;
 
 let place = loadPlace();
-let preview = null; // null follows the clock, otherwise a scene name
+let preview = "dawn"; // the page opens at dawn; null follows the clock
 
 function loadPlace() {
   try {
@@ -179,17 +179,17 @@ function render() {
 // The hero artwork is large, so each scene's picture loads only when it is
 // first shown. The others load once the visitor reaches the sky feature.
 function loadArt(scene) {
-  const img = document.querySelector(`.art[data-art="${scene}"]`);
-  if (img && !img.srcset) img.srcset = img.dataset.srcset;
-  return img;
+  const imgs = [...document.querySelectorAll(`.art[data-art="${scene}"]`)];
+  imgs.forEach((img) => { if (!img.srcset) img.srcset = img.dataset.srcset; });
+  return imgs;
 }
 
 // On first load the hero opens out of an arch (see .is-revealing in
 // styles.css). Wait for the picture, but not for long.
-function reveal(img) {
+function reveal(imgs) {
   if (!root.classList.contains("is-revealing")) return;
   clearTimeout(window.revealFallback);
-  const ready = img && !img.complete ? img.decode().catch(() => {}) : Promise.resolve();
+  const ready = Promise.all(imgs.map((img) => (img.complete ? null : img.decode().catch(() => {}))));
   Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
     requestAnimationFrame(() => root.classList.add("is-open"));
     setTimeout(() => root.classList.remove("is-revealing", "is-open"), 2400);

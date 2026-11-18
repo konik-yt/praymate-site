@@ -177,6 +177,13 @@ a { color: inherit; }
   opacity: 0;
   transition: opacity .7s var(--ease);
 }
+/* A sharper square of the scene sits over the middle of the wide art, with
+   soft sides so the join does not show. */
+.art-center {
+  left: 0; width: 100%; height: 100%; transform: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
 [data-scene="dawn"] .art[data-art="dawn"],
 [data-scene="day"] .art[data-art="day"],
 [data-scene="evening"] .art[data-art="evening"],
@@ -582,8 +589,10 @@ a { color: inherit; }
     --gutter: 48px;
     --cx: 66%;
     --B0: clamp(640px, 100svh, 1000px);
-    --S0: calc(var(--B0) * 1.45);
-    --S1: calc(var(--B0) * .6);
+    /* The wide art is four times as wide as S. At least .34 of the page
+       width keeps it covering the page on very wide screens. */
+    --S0: max(calc(var(--B0) * 1.45), 34vw);
+    --S1: max(calc(var(--B0) * .6), 34vw);
     --B1: calc(180px + var(--S1) * .34);
     --arch: calc(var(--S0) * .36);
   }

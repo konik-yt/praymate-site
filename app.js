@@ -563,7 +563,20 @@ function setupCollapse() {
   apply();
 }
 
+// Stars for the dawn and night skies, the same pattern on every visit and
+// bunched toward the top, each twinkling on its own timing.
+function makeStars() {
+  const box = $("[data-stars]");
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  box.innerHTML = Array.from({ length: 90 }, () => {
+    const size = (0.8 + rnd() * 1.6).toFixed(1);
+    return `<i style="left:${(rnd() * 100).toFixed(2)}%;top:${(rnd() * rnd() * 100).toFixed(2)}%;width:${size}px;height:${size}px;--t:${(2.5 + rnd() * 4).toFixed(2)}s;--d:${(-rnd() * 6).toFixed(2)}s"></i>`;
+  }).join("");
+}
+
 function start() {
+  makeStars();
   setupCollapse();
   setupAlarms();
   setupRinging();

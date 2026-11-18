@@ -166,8 +166,8 @@ a { color: inherit; }
   background: var(--sky-top);
   transition: background-color .6s var(--ease);
 }
+.hero { --S: calc(var(--S0) + (var(--S1) - var(--S0)) * var(--p)); }
 .stage {
-  --S: calc(var(--S0) + (var(--S1) - var(--S0)) * var(--p));
   position: absolute; left: var(--cx); bottom: calc(var(--S) * -.1);
   width: var(--S); height: var(--S);
   transform: translateX(-50%);
@@ -196,6 +196,61 @@ a { color: inherit; }
   position: absolute; left: -300%; right: -300%; bottom: 9.5%; height: 9%;
   background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 55%, transparent) 45%, var(--bg));
   transition: background .6s var(--ease);
+}
+/* Details over the painted sky: stars, a crescent moon, clouds and birds.
+   They stay above the palm tops, which sit at B - .28 S. */
+.sky {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: max(0px, calc(100% - var(--S) * .42));
+  overflow: hidden; pointer-events: none;
+}
+.stars, .clouds, .flock, .moon { opacity: 0; transition: opacity 1s var(--ease); }
+.stars { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); }
+.stars i {
+  position: absolute; border-radius: 50%; background: #FFF6E6;
+  box-shadow: 0 0 4px rgba(255, 246, 230, .8);
+  animation: twinkle var(--t) ease-in-out var(--d) infinite alternate;
+}
+@keyframes twinkle { from { opacity: .2; } to { opacity: 1; } }
+.moon {
+  position: absolute; right: 12%; top: 20%; width: clamp(30px, 2.8vw, 48px);
+  fill: #FFF3DC; filter: drop-shadow(0 0 14px rgba(255, 238, 205, .6));
+}
+/* Flat clouds in the artwork's style: a pill with two bumps, one solid color.
+   Opacity sits on the cloud, so the overlaps don't show as darker patches. */
+.cloud {
+  position: absolute; left: 0; top: var(--y); width: var(--w); height: calc(var(--w) * .16);
+  border-radius: 999px; background: var(--cloud, #fff); opacity: var(--cloud-o, .35);
+  animation: drift var(--t) linear var(--d) infinite;
+}
+.cloud::before, .cloud::after { content: ""; position: absolute; border-radius: 50%; background: inherit; }
+.cloud::before { width: 34%; aspect-ratio: 1; left: 18%; bottom: 30%; }
+.cloud::after { width: 24%; aspect-ratio: 1; left: 46%; bottom: 35%; }
+@keyframes drift { from { transform: translateX(-40vw); } to { transform: translateX(110vw); } }
+.bird { position: absolute; left: 0; top: var(--y); width: var(--w); animation: fly var(--t) linear var(--d) infinite; }
+.bird svg {
+  display: block; width: 100%; fill: none; stroke: #1E1B30; stroke-width: 1.7; stroke-linecap: round;
+  animation: flap .8s ease-in-out infinite alternate;
+}
+@keyframes fly { from { transform: translate(-40px, 0); } to { transform: translate(calc(100vw + 40px), -40px); } }
+@keyframes flap { to { transform: scaleY(.4); } }
+
+[data-scene="dawn"] .stars { opacity: .8; }
+[data-scene="night"] .stars { opacity: 1; }
+[data-scene="evening"] .stars { opacity: .3; }
+[data-scene="dawn"] .moon { opacity: .9; }
+[data-scene="night"] .moon { opacity: 1; }
+[data-scene="day"] .clouds { opacity: 1; }
+[data-scene="evening"] .clouds { opacity: .45; }
+[data-scene="day"] .cloud { --cloud-o: .5; }
+[data-scene="evening"] .cloud { --cloud: #F3C2A8; }
+[data-scene="dawn"] .flock, [data-scene="evening"] .flock { opacity: .6; }
+[data-scene="day"] .flock { opacity: .5; }
+
+/* Dims the artwork so it sits behind the text, most on the text's side. */
+.art-dim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(8, 10, 26, .46), rgba(8, 10, 26, .24) 45%, rgba(8, 10, 26, .14));
 }
 /* Darkens the top of the sky behind the text. */
 .art-shade {
@@ -596,7 +651,16 @@ a { color: inherit; }
     --arch: calc(var(--S0) * .36);
   }
   .site-header { padding-top: 24px; }
-  .hero-text { padding-top: clamp(140px, 22svh, 220px); }
+  .hero-text {
+    position: absolute; inset: 0; margin: 0 auto;
+    padding: 0 var(--gutter) 14svh;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    pointer-events: none;
+  }
+  .hero-text > * { pointer-events: auto; }
+  .art-dim {
+    background: linear-gradient(90deg, rgba(8, 10, 26, .55), rgba(8, 10, 26, .32) 38%, rgba(8, 10, 26, .16) 66%, rgba(8, 10, 26, .12));
+  }
   .band-text { top: 28px; }
   .feature {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
@@ -623,7 +687,7 @@ a { color: inherit; }
 /* With reduced motion the hero stays as it is and scrolls away. */
 @media (prefers-reduced-motion: reduce) {
   :root { --T: 0px; --p: 0; }
-  .band-text { display: none; }
+  .band-text, .flock { display: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
 }

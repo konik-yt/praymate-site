@@ -412,10 +412,12 @@ a { color: inherit; }
 /* Alarms */
 .alarms { max-width: 500px; width: 100%; display: grid; gap: 8px; }
 .alarm-rows { display: grid; gap: 8px; }
-/* The Next alarm card fades out, changes, and fades back in. */
-.alarm-head { transition: opacity .2s var(--ease-io), transform .2s var(--ease-io); }
-.alarm-head.is-fading { opacity: 0; transform: translateY(4px); }
+/* The Next alarm card stays put while its text fades out, changes, and
+   fades back in. */
+.alarm-next > * { transition: opacity .2s var(--ease-io), transform .2s var(--ease-io); }
+.alarm-next.is-fading > * { opacity: 0; transform: translateY(4px); }
 .alarm-next {
+  overflow: hidden;
   background: var(--raised); color: var(--text);
   border-radius: 28px; padding: 26px 28px 24px; margin-bottom: 6px;
 }

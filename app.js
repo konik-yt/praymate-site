@@ -235,8 +235,9 @@ function offsetText(mins) {
   return `${length} ${mins < 0 ? "before" : "after"}`;
 }
 
-// Swap the Next alarm card with a short fade. Taps that come while it is
-// faded out only change what it fades back in with.
+// Swap the Next alarm card's text with a short fade, and ease the card to
+// its new height. Taps that come while the text is faded out only change
+// what it fades back in with.
 function setHead(html) {
   if (html === headHtml) return;
   const first = !headHtml;
@@ -249,7 +250,12 @@ function setHead(html) {
   if (headTimer) return;
   slot.classList.add("is-fading");
   headTimer = setTimeout(() => {
-    slot.innerHTML = headHtml;
+    const from = slot.offsetHeight;
+    slot.innerHTML = headHtml; // the new text starts hidden, as is-fading is still on
+    const to = slot.offsetHeight;
+    if (from !== to) {
+      slot.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 250, easing: "cubic-bezier(.65, 0, .3, 1)" });
+    }
     slot.classList.remove("is-fading");
     headTimer = 0;
   }, 200);
@@ -265,15 +271,13 @@ function renderAlarms(rowsInPlace = false) {
     .map((p) => ({ ...p, ring: alarmAt(p, p.at) }))
     .find((p) => p.ring > now);
 
-  let head = '<div class="alarm-next"><p class="alarm-next-label">Next alarm</p><p class="alarm-next-none">Every alarm is off.</p></div>';
+  let head = '<p class="alarm-next-label">Next alarm</p><p class="alarm-next-none">Every alarm is off.</p>';
   if (upcoming) {
     const ring = clock(upcoming.ring);
     const prayerAt = clock(upcoming.at);
-    head = `<div class="alarm-next">
-      <p class="alarm-next-label">Next alarm</p>
+    head = `<p class="alarm-next-label">Next alarm</p>
       <p class="alarm-next-time">${ring.time}<small>${ring.ampm}</small></p>
-      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? " tomorrow" : ""}, prayer at ${prayerAt.time} ${prayerAt.ampm}</p>
-    </div>`;
+      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? " tomorrow" : ""}, prayer at ${prayerAt.time} ${prayerAt.ampm}</p>`;
   }
 
   const rows = list.map((p) => {

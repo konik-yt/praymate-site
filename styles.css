@@ -24,7 +24,7 @@
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-io: cubic-bezier(.65, 0, .3, 1);
   --ease-zoom: cubic-bezier(.32, 0, .67, 0);   /* ease in: starts slow, ends fast */
-  --ease-pan: cubic-bezier(.35, 0, .25, 1);     /* picks up like the zoom, then settles */
+  --ease-pan: cubic-bezier(.7, 0, .25, 1);      /* starts slowly, speeds up, then settles */
 
   /* Hero sizes. 0 is the opening view, 1 the band it shrinks to as you
      scroll. B is the height of the picture's box, S the side of the square

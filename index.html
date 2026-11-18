@@ -3,12 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Praymate: alarms for the five daily prayers</title>
-  <meta name="description" content="Praymate is an Android app that works out the five daily prayer times on your phone, rings an alarm for each one, and keeps a record of how you answered.">
+  <title>Praymate: an alarm for each daily prayer</title>
+  <meta name="description" content="Praymate is an Android app that works out the five daily prayer times on your phone, rings an alarm for each one, and keeps a quiet record of how you answered.">
   <meta name="theme-color" content="#3984D4">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="preload" href="assets/fonts/Outfit-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&display=swap">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // The hero opens out of an arch on first load. Decide before the first
+    // paint, so the page never flashes the full picture first.
+    try {
+      if (matchMedia("(prefers-reduced-motion: no-preference)").matches && !location.hash) {
+        document.documentElement.classList.add("is-revealing");
+        // If app.js never runs, open the picture anyway.
+        window.revealFallback = setTimeout(function () { document.documentElement.classList.add("is-open"); }, 2500);
+      }
+    } catch (_) {}
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/adhan@4.4.3/lib/bundles/adhan.umd.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -23,20 +36,21 @@
         <header class="site-header">
           <a class="brand" href="#top" aria-label="Praymate, back to top">
             <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3.2a9 9 0 1 0 5.3 15.1A7.6 7.6 0 0 1 15.5 3.2Z"/></svg>
-            <span class="brand-word">Praymate</span>
+            <span>Praymate</span>
           </a>
-          <nav class="site-nav" aria-label="Main">
-            <a href="#features">Features</a>
-            <a class="nav-cta" href="#get">Get the app</a>
-          </nav>
+          <a class="header-link" href="#get">Get the app</a>
         </header>
 
         <div class="art-box" aria-hidden="true">
           <div class="stage">
-            <img class="art" data-art="dawn" src="assets/art/dawn-wide.webp" alt="" width="4702" height="940" decoding="async">
-            <img class="art" data-art="day" src="assets/art/daytime-wide.webp" alt="" width="4702" height="940" decoding="async">
-            <img class="art" data-art="evening" src="assets/art/evening-wide.webp" alt="" width="4702" height="940" decoding="async">
-            <img class="art" data-art="night" src="assets/art/night-wide.webp" alt="" width="4702" height="940" decoding="async">
+            <img class="art" data-art="dawn" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
+              data-srcset="assets/art/dawn-wide-1400.webp 5600w, assets/art/dawn-wide-2400.webp 9600w">
+            <img class="art" data-art="day" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
+              data-srcset="assets/art/daytime-wide-1400.webp 5600w, assets/art/daytime-wide-2400.webp 9600w">
+            <img class="art" data-art="evening" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
+              data-srcset="assets/art/evening-wide-1400.webp 5600w, assets/art/evening-wide-2400.webp 9600w">
+            <img class="art" data-art="night" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 600vw"
+              data-srcset="assets/art/night-wide-1400.webp 5600w, assets/art/night-wide-2400.webp 9600w">
             <div class="ground-fade"></div>
           </div>
           <div class="art-shade"></div>
@@ -44,132 +58,125 @@
 
         <div class="band-text" aria-hidden="true">
           <p class="band-title">Praymate</p>
-          <p class="band-sub">Prayer times and alarms for Android</p>
         </div>
 
         <div class="hero-text">
           <h1 class="wordmark" id="hero-title">Praymate</h1>
-          <p class="hero-line">The five daily prayers, on time. Praymate rings an alarm for every prayer and keeps a record of how you answered.</p>
-          <div class="hero-actions">
-            <a class="button" href="#get">Get the app</a>
-            <a class="button button-quiet" href="#features">See the features</a>
-          </div>
+          <p class="hero-line">Five prayers a day, each with an alarm of its own.</p>
+          <a class="button" href="#get">
+            Get the app
+            <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+          </a>
         </div>
       </section>
     </div>
 
-    <div class="after" id="features">
-      <!-- Prayer times -->
-      <section class="feature" aria-labelledby="f-times">
-        <div class="feature-copy">
-          <h2 id="f-times">Prayer times for where you are</h2>
-          <p>Praymate works out Fajr, Dhuhr, Asr, Maghrib and Isha from your location, right on your phone. It needs no internet connection, and you can switch the calculation method to match your mosque.</p>
-          <p class="feature-note">These are today's real times, calculated in your browser.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="schedule">
-            <div class="schedule-head">
-              <div>
+    <div class="after">
+      <div class="features" id="features">
+        <!-- Prayer times -->
+        <section class="feature" aria-labelledby="f-times">
+          <div class="feature-copy">
+            <h2 id="f-times">Times for wherever you are.</h2>
+            <p>Fajr, Dhuhr, Asr, Maghrib and Isha, worked out on your phone from your location. No connection needed.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="schedule">
+              <div class="schedule-head">
                 <p class="schedule-date" data-date>&nbsp;</p>
                 <p class="schedule-hijri" data-hijri title="Calculated with the tabular Islamic calendar. A local moon sighting can differ by a day.">&nbsp;</p>
               </div>
-              <p class="schedule-count" data-schedule-count></p>
-            </div>
-            <ol class="rows" data-rows></ol>
-            <div class="place">
-              <p><span data-place-label>Times for Makkah</span><span class="place-note">Muslim World League method</span></p>
-              <button class="chip-button" type="button" data-locate>Use my location</button>
-              <p class="place-status" data-place-status role="status"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Alarms -->
-      <section class="feature feature-flip" aria-labelledby="f-alarms">
-        <div class="feature-copy">
-          <h2 id="f-alarms">An alarm for every prayer</h2>
-          <p>Turn each prayer's alarm on or off, set it to ring at the prayer time or a few minutes after, and give each one its own sound. Alarms keep ringing when the app is closed and come back after your phone restarts.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="alarms" data-alarms></div>
-        </div>
-      </section>
-
-      <!-- Answering -->
-      <section class="feature" aria-labelledby="f-answer">
-        <div class="feature-copy">
-          <h2 id="f-answer">Answer with one tap</h2>
-          <p>When the alarm rings, tap I'm praying. Not ready yet? Tap Delay and choose how many minutes to wait, from 1 to 120, and Praymate reminds you again.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="ringing" aria-label="The ringing alarm screen, with the buttons I'm praying and Delay">
-            <p class="ringing-cue">It's time to pray!</p>
-            <p class="ringing-name" data-ringing-name>Asr</p>
-            <div class="ringing-buttons" aria-hidden="true">
-              <span class="ringing-btn ringing-pray">I'm praying</span>
-              <span class="ringing-btn ringing-delay">Delay</span>
-            </div>
-            <div class="delay-pick" aria-hidden="true">
-              <span>5 minutes</span>
-              <span class="is-picked">10 minutes</span>
-              <span>15 minutes</span>
+              <ol class="rows" data-rows></ol>
+              <div class="place">
+                <p data-place-label>Today in Makkah</p>
+                <button class="text-button" type="button" data-locate>Use my location</button>
+                <p class="place-status" data-place-status role="status"></p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- History -->
-      <section class="feature feature-flip" aria-labelledby="f-history">
-        <div class="feature-copy">
-          <h2 id="f-history">See how you're doing</h2>
-          <p>Every answer is saved, first on your phone and then to your account. The history grid colors each prayer by how many reminders it took, so the prayers you missed stand out.</p>
-        </div>
-        <div class="feature-visual">
-          <figure class="history">
-            <table class="grid">
-              <caption class="visually-hidden">An example week of prayer history</caption>
-              <thead><tr><th scope="col">Day</th><th scope="col">Fajr</th><th scope="col">Dhuhr</th><th scope="col">Asr</th><th scope="col">Maghrib</th><th scope="col">Isha</th></tr></thead>
-              <tbody data-grid></tbody>
-            </table>
-            <ul class="legend" aria-label="What the colors mean">
-              <li><span style="--c:#A4D9BC"></span>First reminder</li>
-              <li><span style="--c:#8BCF75"></span>Second reminder</li>
-              <li><span style="--c:#BED064"></span>Third reminder</li>
-              <li><span style="--c:#FBB45E"></span>4+ reminders</li>
-              <li><span style="--c:#D56B6B"></span>Missed</li>
-            </ul>
-          </figure>
-        </div>
-      </section>
+        <!-- Alarms -->
+        <section class="feature" aria-labelledby="f-alarms">
+          <div class="feature-copy">
+            <h2 id="f-alarms">An alarm for each prayer.</h2>
+            <p>Ring at the prayer time or a few minutes after, with a sound of its own. Alarms keep working when the app is closed, and after a restart.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="alarms" data-alarms></div>
+          </div>
+        </section>
 
-      <!-- Sky -->
-      <section class="feature" aria-labelledby="f-sky">
-        <div class="feature-copy">
-          <h2 id="f-sky">A sky that follows your day</h2>
-          <p>The picture changes with the time: dawn before sunrise, day until Asr, evening until Isha, and night after that. The Islamic date moves to the next day at sunset.</p>
-          <p class="feature-note">Pick a time of day to see this page change with it.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="scenes-wrap">
-          <div class="scenes" role="group" aria-label="Show the page at a time of day">
-            <button type="button" data-scene-pick="dawn" aria-pressed="false"><img src="assets/art/dawn-720.webp" alt="" width="720" height="720" loading="lazy"><span>Dawn</span></button>
-            <button type="button" data-scene-pick="day" aria-pressed="false"><img src="assets/art/daytime-720.webp" alt="" width="720" height="720" loading="lazy"><span>Day</span></button>
-            <button type="button" data-scene-pick="evening" aria-pressed="false"><img src="assets/art/evening-720.webp" alt="" width="720" height="720" loading="lazy"><span>Evening</span></button>
-            <button type="button" data-scene-pick="night" aria-pressed="false"><img src="assets/art/night-720.webp" alt="" width="720" height="720" loading="lazy"><span>Night</span></button>
+        <!-- Answering -->
+        <section class="feature" aria-labelledby="f-answer">
+          <div class="feature-copy">
+            <h2 id="f-answer">One tap to answer.</h2>
+            <p>Tap I'm praying when it rings. Not ready? Delay it by up to two hours and Praymate reminds you again.</p>
           </div>
-          <button class="chip-button scenes-reset" type="button" data-scene-pick="live" hidden>Back to the current time</button>
+          <div class="feature-visual">
+            <div class="ringing" aria-label="The ringing alarm screen, with the buttons I'm praying and Delay">
+              <p class="ringing-cue">It's time to pray</p>
+              <p class="ringing-name" data-ringing-name>Asr</p>
+              <div class="ringing-buttons" aria-hidden="true">
+                <span class="ringing-btn ringing-pray">I'm praying</span>
+                <span class="ringing-btn ringing-delay">Delay</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <!-- History -->
+        <section class="feature" aria-labelledby="f-history">
+          <div class="feature-copy">
+            <h2 id="f-history">A quiet record.</h2>
+            <p>Every answer is saved. Each prayer takes the color of how many reminders it needed, so a missed one is easy to see.</p>
+          </div>
+          <div class="feature-visual">
+            <figure class="history">
+              <table class="grid">
+                <caption class="visually-hidden">An example week of prayer history</caption>
+                <thead><tr><th scope="col"><span class="visually-hidden">Day</span></th><th scope="col">Fajr</th><th scope="col">Dhuhr</th><th scope="col">Asr</th><th scope="col">Maghrib</th><th scope="col">Isha</th></tr></thead>
+                <tbody data-grid></tbody>
+              </table>
+              <ul class="legend" aria-label="What the colors mean">
+                <li><span style="--c:#A4D9BC"></span>First reminder</li>
+                <li><span style="--c:#BED064"></span>Later reminder</li>
+                <li><span style="--c:#FBB45E"></span>4 or more</li>
+                <li><span style="--c:#D56B6B"></span>Missed</li>
+              </ul>
+            </figure>
+          </div>
+        </section>
+
+        <!-- Sky -->
+        <section class="feature" aria-labelledby="f-sky">
+          <div class="feature-copy">
+            <h2 id="f-sky">A sky that keeps time.</h2>
+            <p>Dawn, day, evening and night, following the sun where you are. Pick one to see this page change with it.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="scenes-wrap">
+              <div class="scenes" role="group" aria-label="Show the page at a time of day">
+                <button type="button" data-scene-pick="dawn" aria-pressed="false"><img src="assets/art/dawn-960.webp" alt="" width="960" height="960" loading="lazy"><span>Dawn</span></button>
+                <button type="button" data-scene-pick="day" aria-pressed="false"><img src="assets/art/daytime-960.webp" alt="" width="960" height="960" loading="lazy"><span>Day</span></button>
+                <button type="button" data-scene-pick="evening" aria-pressed="false"><img src="assets/art/evening-960.webp" alt="" width="960" height="960" loading="lazy"><span>Evening</span></button>
+                <button type="button" data-scene-pick="night" aria-pressed="false"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"><span>Night</span></button>
+              </div>
+              <button class="text-button scenes-reset" type="button" data-scene-pick="live" hidden>Back to the current time</button>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <section class="get" id="get" data-scene="night" aria-labelledby="get-title">
         <div class="arch" aria-hidden="true">
-          <div class="arch-window"><img src="assets/art/night-720.webp" alt="" width="720" height="720" loading="lazy"></div>
+          <div class="arch-window"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"></div>
         </div>
         <h2 id="get-title">This can be your persistent reminder, right in your pocket.</h2>
         <div class="get-action">
-          <a class="button" data-download hidden href="#">Download for Android</a>
+          <a class="button" data-download hidden href="#">
+            Download for Android
+            <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+          </a>
           <p class="get-status" data-download-status>Praymate is in testing on Android. The public release is coming soon.</p>
         </div>
       </section>
@@ -178,7 +185,6 @@
 
   <footer class="site-footer">
     <p>Prayer times on this page are calculated in your browser with the <a href="https://github.com/batoulapps/adhan-js">Adhan</a> library. Your location never leaves your device.</p>
-    <p>Typefaces: Outfit and Fraunces, under the SIL Open Font License.</p>
   </footer>
 </body>
 </html>

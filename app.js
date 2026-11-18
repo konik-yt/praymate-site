@@ -6,7 +6,7 @@
 // Set this to the Play Store or APK link when the app is released.
 const DOWNLOAD_URL = "";
 
-const MAKKAH = { lat: 21.4225, lng: 39.8262, tz: "Asia/Riyadh", label: "Times for Makkah" };
+const MAKKAH = { lat: 21.4225, lng: 39.8262, tz: "Asia/Riyadh", label: "Today in Makkah" };
 const STORE_KEY = "praymate-site-location";
 const PRAYERS = [
   { key: "fajr", name: "Fajr", icon: "horizon" },
@@ -132,6 +132,7 @@ function render() {
   else if (now < today.sunrise) scene = "dawn";
   else if (now >= today.asr) scene = "evening";
   const shown = preview || scene;
+  loadArt(shown);
   if (root.dataset.scene !== shown) root.dataset.scene = shown;
   document.querySelector('meta[name="theme-color"]')
     .setAttribute("content", getComputedStyle(root).getPropertyValue("--sky-top").trim());
@@ -139,8 +140,6 @@ function render() {
   // Prayer times. The Hijri day starts at sunset.
   $("[data-date]").textContent = `${dateLabel(now, { weekday: "long" })}, ${dateLabel(now, { day: "numeric" })} ${dateLabel(now, { month: "long" })}`;
   $("[data-hijri]").textContent = hijri(now >= today.sunset ? shiftDate(todayDate, 1) : todayDate);
-  const passed = list.filter((p) => p.at <= now).length;
-  $("[data-schedule-count]").textContent = passed === 5 ? "All 5 times passed" : `${passed} of 5 passed`;
   $("[data-rows]").innerHTML = list.map((p) => {
     const c = clock(p.at);
     const isNext = !isTomorrow && p.key === next.key;
@@ -167,8 +166,7 @@ function render() {
     <div class="alarm-next">
       <p class="alarm-next-label">Next alarm</p>
       <p class="alarm-next-time">${ring.time}<small>${ring.ampm}</small></p>
-      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? ", tomorrow" : ""}</p>
-      <div class="alarm-chips"><span>Scheduled</span><span>Prayer at ${prayerAt.time} ${prayerAt.ampm}</span></div>
+      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? " tomorrow" : ""}, prayer at ${prayerAt.time} ${prayerAt.ampm}</p>
     </div>
     ${list.map((p) => {
       const [mins, on] = ALARMS[p.key];
@@ -194,6 +192,26 @@ function render() {
       }).join("")}</tr>`;
     }).join("");
   }
+}
+
+// The hero artwork is large, so each scene's picture loads only when it is
+// first shown. The others load once the visitor reaches the sky feature.
+function loadArt(scene) {
+  const img = document.querySelector(`.art[data-art="${scene}"]`);
+  if (img && !img.srcset) img.srcset = img.dataset.srcset;
+  return img;
+}
+
+// On first load the hero opens out of an arch (see .is-revealing in
+// styles.css). Wait for the picture, but not for long.
+function reveal(img) {
+  if (!root.classList.contains("is-revealing")) return;
+  clearTimeout(window.revealFallback);
+  const ready = img && !img.complete ? img.decode().catch(() => {}) : Promise.resolve();
+  Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
+    requestAnimationFrame(() => root.classList.add("is-open"));
+    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 2400);
+  });
 }
 
 function setPreview(scene) {
@@ -225,7 +243,7 @@ function locate() {
         lat: Math.round(pos.coords.latitude * 1000) / 1000,
         lng: Math.round(pos.coords.longitude * 1000) / 1000,
         tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        label: "Times for your location",
+        label: "Today where you are",
       };
       savePlace(place);
       status.textContent = "";
@@ -302,6 +320,12 @@ function start() {
   }
 
   render();
+  reveal(loadArt(root.dataset.scene));
+  new IntersectionObserver((entries, observer) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    ["dawn", "day", "evening", "night"].forEach(loadArt);
+    observer.disconnect();
+  }, { rootMargin: "400px" }).observe($(".scenes"));
   setInterval(render, 20000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
 }

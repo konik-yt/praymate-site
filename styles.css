@@ -300,7 +300,7 @@ a { color: inherit; }
    runs it on the graphics card and it stays smooth. app.js adds is-open once
    the picture has loaded, and sets --k, the scale at which the window covers
    the whole screen. */
-.hero { --zoom: 3.4s; }
+.hero { --zoom: 2s; }
 .portal { display: none; }
 .is-revealing .portal { display: block; position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
 .portal-arch {
@@ -325,7 +325,7 @@ a { color: inherit; }
   transition: translate var(--zoom) var(--ease-zoom), scale var(--zoom) var(--ease-zoom);
 }
 .is-revealing.is-open .art-dim, .is-revealing.is-open .art-shade {
-  opacity: 1; transition: opacity 1.4s var(--ease-io) calc(var(--zoom) - .6s);
+  opacity: 1; transition: opacity 1s var(--ease-io) calc(var(--zoom) - .5s);
 }
 .is-revealing.is-open .site-header,
 .is-revealing.is-open .hero-text > * {

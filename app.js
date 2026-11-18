@@ -193,8 +193,8 @@ function reveal(imgs) {
   Promise.race([ready, new Promise((r) => setTimeout(r, 1500))]).then(() => {
     $(".hero").style.setProperty("--k", portalScale().toFixed(2));
     requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add("is-open")));
-    // The zoom, the darkening and the text take about 4.8 s in all.
-    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 5000);
+    // The zoom, the darkening and the text take about 3.4 s in all.
+    setTimeout(() => root.classList.remove("is-revealing", "is-open"), 3600);
   });
 }
 

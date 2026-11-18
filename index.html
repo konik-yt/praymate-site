@@ -214,24 +214,26 @@
         </section>
       </div>
 
+      <!-- The closing section fills the screen, with the credits at its foot. -->
       <section class="get" id="get" data-scene="night" aria-labelledby="get-title">
-        <div class="arch" aria-hidden="true">
-          <div class="arch-window"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"></div>
+        <div class="get-body">
+          <div class="arch" aria-hidden="true">
+            <div class="arch-window"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"></div>
+          </div>
+          <h2 id="get-title">This can be your persistent reminder, right in your pocket.</h2>
+          <div class="get-action">
+            <a class="button" data-download hidden href="#">
+              Download for Android
+              <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+            </a>
+            <p class="get-status" data-download-status>Praymate is in testing on Android. The public release is coming soon.</p>
+          </div>
         </div>
-        <h2 id="get-title">This can be your persistent reminder, right in your pocket.</h2>
-        <div class="get-action">
-          <a class="button" data-download hidden href="#">
-            Download for Android
-            <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
-          </a>
-          <p class="get-status" data-download-status>Praymate is in testing on Android. The public release is coming soon.</p>
-        </div>
+        <footer class="site-footer">
+          <p>Prayer times on this page are calculated in your browser with the <a href="https://github.com/batoulapps/adhan-js">Adhan</a> library. Your location never leaves your device.</p>
+        </footer>
       </section>
     </div>
   </main>
-
-  <footer class="site-footer">
-    <p>Prayer times on this page are calculated in your browser with the <a href="https://github.com/batoulapps/adhan-js">Adhan</a> library. Your location never leaves your device.</p>
-  </footer>
 </body>
 </html>

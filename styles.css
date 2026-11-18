@@ -552,12 +552,13 @@ a { color: inherit; }
 
 /* Closing, always at night, like the app's welcome screens */
 .get {
-  margin-top: 160px;
-  background: linear-gradient(to bottom, #2E3249 0%, #5D4E57 26%, #2A2B3E 40%, var(--deep) 52%);
+  margin-top: 160px; min-height: 100svh;
+  background: linear-gradient(to bottom, #2E3249 0%, #5D4E57 22%, #2A2B3E 36%, var(--deep) 50%);
   color: var(--cream);
-  padding: 104px var(--gutter) 112px;
-  display: grid; justify-items: center; text-align: center;
+  padding: 0 var(--gutter);
+  display: grid; grid-template-rows: 1fr auto; text-align: center;
 }
+.get-body { display: grid; justify-items: center; align-content: center; padding: 96px 0 64px; }
 .arch {
   width: min(360px, 76vw); padding: 10px;
   border: 1px solid rgba(201, 150, 104, .7);
@@ -576,10 +577,7 @@ a { color: inherit; }
 .get-action { margin-top: 36px; display: grid; gap: 14px; justify-items: center; }
 .get-status { color: #C4BDCB; max-width: 30rem; font-size: 16px; }
 
-.site-footer {
-  background: var(--deep); color: #9E97A8; font-size: 14px;
-  padding: 0 var(--gutter) 48px; text-align: center;
-}
+.site-footer { color: #9E97A8; font-size: 14px; padding: 0 0 40px; }
 .site-footer p { max-width: 40rem; margin: 0 auto; }
 .site-footer a { color: var(--cream); }
 

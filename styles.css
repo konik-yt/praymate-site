@@ -273,6 +273,7 @@ a { color: inherit; }
 }
 .feature-copy { display: grid; gap: 18px; align-content: center; }
 .feature-copy p { max-width: 30rem; color: var(--secondary); }
+.feature-copy .feature-try { font-size: 16px; color: var(--text); }
 .feature-visual { min-width: 0; }
 
 /* Prayer times */
@@ -320,31 +321,85 @@ a { color: inherit; }
 }
 .alarm-next-time small { font-size: .42em; margin-left: .15em; letter-spacing: 0; }
 .alarm-next-name { margin-top: 12px; font-size: 18px; }
+.alarm-next-none { margin-top: 10px; font-size: 18px; }
 .alarm-row {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px;
-  padding: 11px 16px 11px 11px; border-radius: 20px; background: var(--surface);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px;
+  padding: 0 14px 0 0; border-radius: 20px; background: var(--surface);
   transition: background-color .6s var(--ease);
 }
+.alarm-main {
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: none; border: 0; border-radius: 20px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px;
+  padding: 11px 6px 11px 11px; min-height: 60px;
+}
+.alarm-chevron { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .5; transition: transform .35s var(--ease-out); }
+.alarm-row.is-open .alarm-chevron { transform: rotate(180deg); }
 .alarm-row .row-icon { width: 38px; height: 38px; border-radius: 12px; }
 .alarm-row-text { display: grid; line-height: 1.3; }
 .alarm-row-text strong { font-size: 17px; font-weight: 500; }
 .alarm-row-text span { font-size: 14px; color: var(--secondary); }
-.alarm-row.is-off .alarm-row-text { opacity: .55; }
-.switch {
-  width: 50px; height: 30px; border-radius: 999px; padding: 4px;
-  background: var(--track); display: flex;
+.alarm-row.is-off .alarm-row-text, .alarm-row.is-off .row-icon { opacity: .55; }
+
+.alarm-edit { grid-column: 1 / -1; padding: 2px 4px 16px 16px; display: grid; gap: 14px; }
+.alarm-edit.is-opening { animation: edit-in .4s var(--ease-out) both; }
+@keyframes edit-in { from { opacity: 0; transform: translateY(-6px); } }
+.alarm-edit-note { font-size: 14px; color: var(--secondary); }
+.alarm-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.alarm-presets button {
+  font: inherit; font-size: 14px; cursor: pointer;
+  min-height: 38px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--track); background: none; color: var(--text);
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
 }
-.switch::after { content: ""; width: 22px; height: 22px; border-radius: 50%; background: var(--secondary); opacity: .6; }
-.switch.is-on { background: var(--action); justify-content: flex-end; }
-.switch.is-on::after { background: var(--earth); opacity: 1; }
+.alarm-presets button:hover { border-color: var(--secondary); }
+.alarm-presets button[aria-pressed="true"] { background: var(--delft); border-color: var(--delft); color: var(--cream); }
+.stepper { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+.stepper button {
+  font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%; border: 0;
+  background: var(--track); color: var(--text);
+  transition: background-color .2s var(--ease), opacity .2s var(--ease);
+}
+.stepper button:hover:not(:disabled) { background: color-mix(in srgb, var(--track), var(--text) 12%); }
+.stepper button:disabled { opacity: .35; cursor: default; }
+.stepper p { text-align: center; display: grid; line-height: 1.25; }
+.stepper strong { font-family: var(--serif); font-weight: 400; font-size: 26px; }
+.stepper span { font-size: 14px; color: var(--secondary); }
+
+.switch {
+  flex: none; width: 50px; height: 30px; border-radius: 999px; padding: 4px; border: 0; cursor: pointer;
+  background: var(--track); display: flex;
+  transition: background-color .25s var(--ease);
+}
+.switch::after {
+  content: ""; width: 22px; height: 22px; border-radius: 50%; background: var(--secondary); opacity: .6;
+  transition: transform .3s var(--ease-out), background-color .25s var(--ease), opacity .25s var(--ease);
+}
+.switch.is-on { background: var(--action); }
+.switch.is-on::after { background: var(--earth); opacity: 1; transform: translateX(20px); }
 [data-scene="night"] .switch.is-on::after { background: var(--deep); }
 
-/* Answering */
+/* Answering. The card has three panels stacked in one grid cell, so it
+   keeps its height as they swap. */
 .ringing {
-  max-width: 380px; width: 100%; border-radius: 36px; padding: 56px 28px 28px;
-  background: #101824; color: #F6F3EC; text-align: center;
+  --ring-text: #F6F3EC; --ring-muted: #B2BECD;
+  max-width: 380px; width: 100%; border-radius: 36px; padding: 52px 28px 28px;
+  background: #101824; color: var(--ring-text); text-align: center;
   box-shadow: 0 40px 80px -40px rgba(16, 24, 36, .7);
+  display: grid;
 }
+.ringing .text-button { color: var(--ring-text); font-size: 15px; }
+.ring-panel {
+  grid-area: 1 / 1; display: grid; align-content: start;
+  transition: opacity .35s var(--ease), transform .5s var(--ease-out), visibility 0s;
+}
+.ring-panel[inert] {
+  opacity: 0; transform: translateY(10px); visibility: hidden;
+  transition: opacity .25s var(--ease), transform .35s var(--ease), visibility 0s .35s;
+}
+
+.ring-main { align-content: center; }
 .ringing-cue { color: var(--earth); font-size: 17px; }
 .ringing-name {
   font-family: var(--serif); font-variation-settings: "opsz" 144, "SOFT" 50;
@@ -352,9 +407,105 @@ a { color: inherit; }
   margin: 8px 0 40px;
 }
 .ringing-buttons { display: grid; gap: 10px; }
-.ringing-btn { display: grid; place-items: center; min-height: 56px; border-radius: 999px; color: #101824; font-weight: 500; font-size: 17px; }
-.ringing-pray { background: var(--prayed); }
+.ringing-btn {
+  font: inherit; font-weight: 500; font-size: 17px; cursor: pointer; border: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 56px; padding: 0 26px; border-radius: 999px; color: #101824;
+  transition: background-color .2s var(--ease), opacity .3s var(--ease), transform .3s var(--ease-out);
+}
+.ringing-pray { background: var(--prayed); overflow: hidden; white-space: nowrap; }
+.ringing-pray:hover { background: #B6E2CA; }
 .ringing-delay { background: var(--earth); }
+.ringing-delay:hover { background: #FCC57F; }
+
+/* I'm praying: the label morphs letter by letter, a spinner turns into a
+   drawn check, and a soft ring grows around the button. */
+.ringing[data-state="logging"] .ringing-pray,
+.ringing[data-state="logged"] .ringing-pray { justify-self: center; cursor: default; }
+.ringing[data-state="logging"] .ringing-pray:hover,
+.ringing[data-state="logged"] .ringing-pray:hover { background: var(--prayed); }
+.ringing-pray.is-sizing { transition: width .55s var(--ease-out), background-color .2s var(--ease); }
+.ringing[data-state="logged"] .ringing-pray { box-shadow: 0 0 0 6px rgba(164, 217, 188, .3); animation: halo 1s var(--ease-out); }
+@keyframes halo {
+  0% { box-shadow: 0 0 0 0 rgba(164, 217, 188, .6); }
+  100% { box-shadow: 0 0 0 6px rgba(164, 217, 188, .3); }
+}
+.morph { display: inline-flex; white-space: pre; }
+.morph .ch { display: inline-block; }
+.morph .ch.in { animation: ch-in .5s var(--ease-out) both; animation-delay: calc(var(--i) * 30ms); }
+.morph .ch.out { animation: ch-out .18s ease-in both; }
+@keyframes ch-in { from { opacity: 0; filter: blur(6px); transform: translateY(6px); } }
+@keyframes ch-out { to { opacity: 0; filter: blur(6px); transform: translateY(-4px); } }
+
+.pray-icon {
+  position: relative; width: 0; height: 20px; margin-left: 0; flex: none;
+  transition: width .4s var(--ease-out), margin-left .4s var(--ease-out);
+}
+.ringing[data-state="logging"] .pray-icon,
+.ringing[data-state="logged"] .pray-icon { width: 20px; margin-left: 12px; }
+.pray-icon svg {
+  position: absolute; inset: 0; width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+}
+.spinner { opacity: 0; transform: scale(.4); transition: opacity .25s var(--ease), transform .35s var(--ease-out); }
+.spinner circle { stroke-dasharray: 30 44; transform-origin: 50% 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ringing[data-state="logging"] .spinner { opacity: 1; transform: none; }
+.check path { stroke-dasharray: 18; stroke-dashoffset: 18; }
+.ringing[data-state="logged"] .check path { stroke-dashoffset: 0; transition: stroke-dashoffset .45s var(--ease-out) .1s; }
+
+.ring-second { display: grid; min-height: 56px; }
+.ring-second > * { grid-area: 1 / 1; }
+.ringing[data-state="logging"] .ring-second .ringing-delay,
+.ringing[data-state="logged"] .ring-second .ringing-delay {
+  opacity: 0; transform: scale(.94); visibility: hidden;
+  transition: opacity .25s var(--ease), transform .3s var(--ease), visibility 0s .3s;
+}
+.ring-logged {
+  display: grid; justify-items: center; align-content: start; gap: 2px; padding-top: 14px;
+  opacity: 0; visibility: hidden; transform: translateY(6px);
+  transition: opacity .3s var(--ease), transform .4s var(--ease-out), visibility 0s .4s;
+}
+.ring-logged p { color: var(--ring-muted); font-size: 15px; }
+.ringing[data-state="logged"] .ring-logged {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .5s var(--ease) .35s, transform .6s var(--ease-out) .35s, visibility 0s;
+}
+
+/* Delay, like the app's Delay alarm dialog */
+.ring-title { font-family: var(--serif); font-size: 30px; line-height: 1.15; }
+.ring-sub { margin-top: 8px; color: var(--ring-muted); font-size: 15px; line-height: 1.5; }
+.wheel-label { margin-top: 18px; color: var(--earth); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+.wheel-wrap { position: relative; margin-top: 8px; }
+.wheel-wrap::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px;
+  border-radius: 14px; background: #223142; pointer-events: none;
+}
+.wheel {
+  position: relative; height: 176px; overflow-y: auto; overscroll-behavior: contain;
+  scroll-snap-type: y mandatory; scrollbar-width: none; border-radius: 14px;
+  -webkit-mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+.wheel::-webkit-scrollbar { display: none; }
+.wheel ol { list-style: none; margin: 0; padding: 66px 0; }
+.wheel li {
+  height: 44px; display: grid; place-items: center; scroll-snap-align: center; cursor: pointer;
+  color: var(--ring-muted); font-size: 18px;
+  transition: color .15s var(--ease), font-size .15s var(--ease);
+}
+.wheel li.is-picked { color: var(--ring-text); font-size: 22px; font-weight: 500; }
+.wheel-hint { margin-top: 10px; color: var(--ring-muted); font-size: 14px; }
+.ring-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ring-actions .ringing-btn { padding: 0 12px; font-size: 16px; }
+.ring-cancel { background: #223142; color: var(--ring-text); }
+.ring-cancel:hover { background: #2B3D52; }
+
+.ring-delayed { align-content: center; justify-items: center; gap: 4px; }
+.delayed-icon { width: 64px; height: 64px; margin-bottom: 14px; fill: none; stroke: var(--earth); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ring-delayed:not([inert]) .delayed-icon path { animation: hand .9s var(--ease-out) both; transform-origin: 24px 24px; }
+@keyframes hand { from { transform: rotate(-120deg); opacity: 0; } }
+.ring-delayed .text-button { margin-top: 12px; }
 
 /* History */
 .history { margin: 0; max-width: 540px; width: 100%; padding: 22px 22px 20px; border-radius: 28px; background: var(--surface); transition: background-color .6s var(--ease); }
@@ -364,6 +515,12 @@ a { color: inherit; }
 .grid td { padding: 0; }
 .cell { height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--c); color: #1C2032; }
 .cell svg { width: 16px; height: 16px; }
+.cell.is-new { animation: cell-pop .8s var(--ease-out); }
+@keyframes cell-pop {
+  0% { transform: scale(.6); box-shadow: 0 0 0 0 rgba(164, 217, 188, .9); }
+  60% { transform: scale(1.08); }
+  100% { transform: none; box-shadow: 0 0 0 10px rgba(164, 217, 188, 0); }
+}
 .legend { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--secondary); }
 .legend li { display: inline-flex; align-items: center; gap: 7px; }
 .legend span { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }

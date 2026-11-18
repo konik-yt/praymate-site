@@ -4,7 +4,7 @@
 
 The website for Praymate, the Android app for the five daily prayers.
 
-The page opens on the Kaaba artwork for the current time of day. On first load the picture opens out of an arch around the Kaaba to the full width of the page, with the Praymate name beside it. As you scroll, the picture shrinks into a band and the Kaaba rises, the same motion as the app's switch from Home to another tab. Five features follow, one at a time: prayer times, alarms, answering an alarm, history, and the sky that follows the day.
+The page opens on the Kaaba artwork for the current time of day. On first load the picture opens out of an arch around the Kaaba to the full width of the page, with the Praymate name beside it. As you scroll, the picture shrinks into a band and the Kaaba rises, the same motion as the app's switch from Home to another tab. Five features follow, one at a time: prayer times, alarms, answering an alarm, history, and the sky that follows the day. The alarms and the ringing alarm can be tried on the page: switch alarms on and off, move an alarm's time, press I'm praying to see the prayer logged, or press Delay to pick how many minutes to wait. These changes are not saved.
 
 The prayer times are real. They are calculated in the browser with the same library and settings as the app (Adhan, Muslim World League, Shafi Asr), and the artwork is picked the same way the app picks it. Visitors see Makkah times until they choose Use my location. The location stays in their browser.
 

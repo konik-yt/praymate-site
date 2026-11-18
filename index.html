@@ -99,7 +99,8 @@
         <section class="feature" aria-labelledby="f-alarms">
           <div class="feature-copy">
             <h2 id="f-alarms">An alarm for each prayer.</h2>
-            <p>Ring at the prayer time or a few minutes after, with a sound of its own. Alarms keep working when the app is closed, and after a restart.</p>
+            <p>Ring at the prayer time, a little before or a little after. Alarms keep working when the app is closed, and after a restart.</p>
+            <p class="feature-try">Try it: switch an alarm off, or tap a prayer to move its alarm.</p>
           </div>
           <div class="feature-visual">
             <div class="alarms" data-alarms></div>
@@ -111,14 +112,52 @@
           <div class="feature-copy">
             <h2 id="f-answer">One tap to answer.</h2>
             <p>Tap I'm praying when it rings. Not ready? Delay it by up to two hours and Praymate reminds you again.</p>
+            <p class="feature-try">Try both buttons.</p>
           </div>
           <div class="feature-visual">
-            <div class="ringing" aria-label="The ringing alarm screen, with the buttons I'm praying and Delay">
-              <p class="ringing-cue">It's time to pray</p>
-              <p class="ringing-name" data-ringing-name>Asr</p>
-              <div class="ringing-buttons" aria-hidden="true">
-                <span class="ringing-btn ringing-pray">I'm praying</span>
-                <span class="ringing-btn ringing-delay">Delay</span>
+            <div class="ringing" data-ringing data-state="ringing">
+              <div class="ring-panel ring-main" data-panel="main">
+                <p class="ringing-cue">It's time to pray</p>
+                <p class="ringing-name" data-ringing-name>Asr</p>
+                <div class="ringing-buttons">
+                  <button class="ringing-btn ringing-pray" type="button" data-pray>
+                    <span class="morph" data-pray-label>I'm praying</span>
+                    <span class="pray-icon" aria-hidden="true">
+                      <svg class="spinner" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/></svg>
+                      <svg class="check" viewBox="0 0 20 20"><path d="M4.8 10.4l3.4 3.4L15.2 6.6"/></svg>
+                    </span>
+                  </button>
+                  <div class="ring-second">
+                    <button class="ringing-btn ringing-delay" type="button" data-delay-open>Delay</button>
+                    <div class="ring-logged" role="status">
+                      <p data-logged-text></p>
+                      <button class="text-button" type="button" data-ring-reset>Ring again</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ring-panel ring-delay" data-panel="delay" inert>
+                <p class="ring-title">Delay alarm</p>
+                <p class="ring-sub">Choose how many minutes to wait before your next reminder.</p>
+                <p class="wheel-label">Minutes</p>
+                <div class="wheel-wrap">
+                  <div class="wheel" data-wheel tabindex="0" role="spinbutton" aria-label="Delay minutes" aria-valuemin="1" aria-valuemax="120" aria-valuenow="10">
+                    <ol data-wheel-list></ol>
+                  </div>
+                </div>
+                <p class="wheel-hint" data-wheel-hint>&nbsp;</p>
+                <div class="ring-actions">
+                  <button class="ringing-btn ring-cancel" type="button" data-delay-cancel>Cancel</button>
+                  <button class="ringing-btn ringing-delay" type="button" data-delay-confirm>Delay alarm</button>
+                </div>
+              </div>
+
+              <div class="ring-panel ring-delayed" data-panel="delayed" inert>
+                <svg class="delayed-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19"/><path d="M24 13v11.5l7.5 4.5"/></svg>
+                <p class="ring-title" data-delayed-title>Delayed</p>
+                <p class="ring-sub" data-delayed-text role="status"></p>
+                <button class="text-button" type="button" data-ring-reset>Ring again</button>
               </div>
             </div>
           </div>

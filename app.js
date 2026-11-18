@@ -154,32 +154,14 @@ function render() {
   $("[data-locate]").textContent = place === MAKKAH ? "Use my location" : "Show Makkah";
 
   // Alarms: the next one that is on, then every prayer's switch.
-  const alarmAt = (p, at) => new Date(at.getTime() + ALARMS[p.key][0] * 60000);
-  const upcoming = [...list, { ...PRAYERS[0], at: tomorrow.fajr, tomorrow: true }]
-    .filter((p) => ALARMS[p.key][1])
-    .map((p) => ({ ...p, ring: alarmAt(p, p.at) }))
-    .find((p) => p.ring > now);
-  const ring = clock(upcoming.ring);
-  const prayerAt = clock(upcoming.at);
-  const offsetText = (mins) => (mins ? `${mins} min after` : "At prayer time");
-  $("[data-alarms]").innerHTML = `
-    <div class="alarm-next">
-      <p class="alarm-next-label">Next alarm</p>
-      <p class="alarm-next-time">${ring.time}<small>${ring.ampm}</small></p>
-      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? " tomorrow" : ""}, prayer at ${prayerAt.time} ${prayerAt.ampm}</p>
-    </div>
-    ${list.map((p) => {
-      const [mins, on] = ALARMS[p.key];
-      const r = clock(alarmAt(p, p.at));
-      return `<div class="alarm-row${on ? "" : " is-off"}">
-        <span class="row-icon" aria-hidden="true">${ICONS[p.icon]}</span>
-        <span class="alarm-row-text"><strong>${p.name}</strong><span>${on ? `${r.time} ${r.ampm}, ${offsetText(mins).toLowerCase()}` : "Off"}</span></span>
-        <span class="switch${on ? " is-on" : ""}" role="img" aria-label="${p.name} alarm ${on ? "on" : "off"}"></span>
-      </div>`;
-    }).join("")}`;
+  alarmCtx = { list, tomorrowFajr: tomorrow.fajr, now };
+  renderAlarms();
 
-  // The ringing screen shows the next prayer.
-  $("[data-ringing-name]").textContent = next.name;
+  // The ringing screen shows the next prayer, unless it is mid-answer.
+  if (ring && ring.root.dataset.state === "ringing") {
+    ringKey = next.key;
+    $("[data-ringing-name]").textContent = next.name;
+  }
 
   // History: an example week ending today.
   if (!$("[data-grid]").childElementCount) {
@@ -212,6 +194,282 @@ function reveal(img) {
     requestAnimationFrame(() => root.classList.add("is-open"));
     setTimeout(() => root.classList.remove("is-revealing", "is-open"), 2400);
   });
+}
+
+// Alarms you can change. Tap a prayer for the app's Change alarm time
+// choices, or flip its switch. Changes last until the page reloads.
+const PRESETS = [[-10, "10 min before"], [0, "At prayer time"], [10, "10 min after"]];
+const CHEVRON = '<svg class="alarm-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>';
+let alarmCtx = null;
+let openAlarm = null;
+let justOpened = null;
+let alarmsHtml = "";
+
+function offsetText(mins) {
+  if (!mins) return "at prayer time";
+  const a = Math.abs(mins);
+  const h = Math.floor(a / 60);
+  const m = a % 60;
+  const length = h ? (m ? `${h} hr ${m} min` : `${h} hr`) : `${m} min`;
+  return `${length} ${mins < 0 ? "before" : "after"}`;
+}
+
+function renderAlarms() {
+  if (!alarmCtx) return;
+  const { list, tomorrowFajr, now } = alarmCtx;
+  const alarmAt = (p, at) => new Date(at.getTime() + ALARMS[p.key][0] * 60000);
+  const upcoming = [...list, { ...PRAYERS[0], at: tomorrowFajr, tomorrow: true }]
+    .filter((p) => ALARMS[p.key][1])
+    .map((p) => ({ ...p, ring: alarmAt(p, p.at) }))
+    .find((p) => p.ring > now);
+
+  let head = '<div class="alarm-next"><p class="alarm-next-label">Next alarm</p><p class="alarm-next-none">Every alarm is off.</p></div>';
+  if (upcoming) {
+    const ring = clock(upcoming.ring);
+    const prayerAt = clock(upcoming.at);
+    head = `<div class="alarm-next">
+      <p class="alarm-next-label">Next alarm</p>
+      <p class="alarm-next-time">${ring.time}<small>${ring.ampm}</small></p>
+      <p class="alarm-next-name">${upcoming.name}${upcoming.tomorrow ? " tomorrow" : ""}, prayer at ${prayerAt.time} ${prayerAt.ampm}</p>
+    </div>`;
+  }
+
+  const rows = list.map((p) => {
+    const [mins, on] = ALARMS[p.key];
+    const r = clock(alarmAt(p, p.at));
+    const open = openAlarm === p.key;
+    const prayerAt = clock(p.at);
+    const edit = !open ? "" : `<div class="alarm-edit${justOpened === p.key ? " is-opening" : ""}" id="edit-${p.key}">
+        <p class="alarm-edit-note">Prayer at ${prayerAt.time} ${prayerAt.ampm}. Choose a time within 2 hours.</p>
+        <div class="alarm-presets" role="group" aria-label="Quick times for ${p.name}">${PRESETS.map(([v, label]) =>
+          `<button type="button" data-offset="${p.key}:${v}" aria-pressed="${on && mins === v}">${label}</button>`).join("")}</div>
+        <div class="stepper">
+          <button type="button" data-step="${p.key}:-5" aria-label="5 minutes earlier"${mins <= -120 ? " disabled" : ""}>&minus;</button>
+          <p aria-live="polite"><strong>${r.time} ${r.ampm}</strong><span>${offsetText(mins)}</span></p>
+          <button type="button" data-step="${p.key}:5" aria-label="5 minutes later"${mins >= 120 ? " disabled" : ""}>+</button>
+        </div>
+      </div>`;
+    return `<div class="alarm-row${on ? "" : " is-off"}${open ? " is-open" : ""}">
+      <button class="alarm-main" type="button" data-edit="${p.key}" aria-expanded="${open}"${open ? ` aria-controls="edit-${p.key}"` : ""}>
+        <span class="row-icon" aria-hidden="true">${ICONS[p.icon]}</span>
+        <span class="alarm-row-text"><strong>${p.name}</strong><span>${on ? `${r.time} ${r.ampm}, ${offsetText(mins)}` : "Off"}</span></span>
+        ${CHEVRON}
+      </button>
+      <button class="switch${on ? " is-on" : ""}" type="button" role="switch" aria-checked="${on}" aria-label="${p.name} alarm" data-toggle="${p.key}"></button>
+      ${edit}
+    </div>`;
+  }).join("");
+
+  const html = head + rows;
+  justOpened = null;
+  if (html === alarmsHtml) return;
+  alarmsHtml = html;
+
+  // Rebuilding the list would drop keyboard focus, so put it back.
+  const box = $("[data-alarms]");
+  const active = document.activeElement;
+  let refocus = null;
+  if (active && box.contains(active)) {
+    for (const k of ["edit", "toggle", "offset", "step"]) {
+      if (active.dataset[k]) refocus = `[data-${k}="${active.dataset[k]}"]`;
+    }
+  }
+  box.innerHTML = html;
+  if (refocus) {
+    let el = box.querySelector(refocus);
+    if (!el || el.disabled) el = box.querySelector(`.alarm-row.is-open [data-step]:not(:disabled)`);
+    if (el) el.focus();
+  }
+}
+
+function setupAlarms() {
+  $("[data-alarms]").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const d = b.dataset;
+    if (d.toggle) {
+      const on = !ALARMS[d.toggle][1];
+      ALARMS[d.toggle][1] = on;
+      // Let the switch slide before the list is rebuilt.
+      b.classList.toggle("is-on", on);
+      b.setAttribute("aria-checked", String(on));
+      setTimeout(renderAlarms, 300);
+    } else if (d.edit) {
+      openAlarm = openAlarm === d.edit ? null : d.edit;
+      justOpened = openAlarm;
+      renderAlarms();
+    } else if (d.offset) {
+      const [key, v] = d.offset.split(":");
+      ALARMS[key] = [Number(v), true];
+      renderAlarms();
+    } else if (d.step) {
+      const [key, v] = d.step.split(":");
+      ALARMS[key] = [Math.min(120, Math.max(-120, ALARMS[key][0] + Number(v))), true];
+      renderAlarms();
+    }
+  });
+}
+
+// The ringing alarm. I'm praying plays the logging animation; Delay opens
+// the app's Delay alarm screen with a minutes wheel from 1 to 120.
+const ITEM = 44; // height of one row of the minutes wheel, as in styles.css
+let ring = null;
+let ringKey = "asr";
+let ringTimers = [];
+let wheelValue = 0;
+
+const later = (fn, ms) => ringTimers.push(setTimeout(fn, ms));
+const ringName = () => PRAYERS.find((p) => p.key === ringKey).name;
+const timeIn = (mins) => { const c = clock(new Date(Date.now() + mins * 60000)); return `${c.time} ${c.ampm}`; };
+
+function setRing(state) {
+  ring.root.dataset.state = state;
+  const panel = state === "delay" || state === "delayed" ? state : "main";
+  ring.root.querySelectorAll("[data-panel]").forEach((p) => p.toggleAttribute("inert", p.dataset.panel !== panel));
+}
+
+// Swap the button's words letter by letter. Letters the old and new words
+// share at the start stay put; the rest blur out, then the new ones blur in.
+function morph(text, from) {
+  const el = ring.label;
+  const old = el.dataset.text || el.textContent;
+  let keep = 0;
+  while (keep < old.length && keep < text.length && old[keep] === text[keep]) keep++;
+  const leaving = [...el.children].slice(keep);
+  const swap = () => {
+    el.replaceChildren(...[...text].map((c, i) => {
+      const span = document.createElement("span");
+      span.className = i < keep ? "ch" : "ch in";
+      span.style.setProperty("--i", i - keep);
+      span.textContent = c === " " ? " " : c;
+      return span;
+    }));
+    el.dataset.text = text;
+    fitPray(from);
+  };
+  leaving.forEach((c) => c.classList.add("out"));
+  if (leaving.length) later(swap, 180);
+  else swap();
+}
+
+// Slide the button's width to fit its new words and icon.
+function fitPray(from) {
+  const btn = ring.pray;
+  const start = from ?? btn.getBoundingClientRect().width;
+  const icon = ring.root.dataset.state === "ringing" ? 0 : 32;
+  const target = ring.label.getBoundingClientRect().width + icon + 52;
+  btn.classList.remove("is-sizing");
+  btn.style.width = `${start}px`;
+  void btn.offsetWidth;
+  btn.classList.add("is-sizing");
+  btn.style.width = `${target}px`;
+}
+
+function pray() {
+  if (ring.root.dataset.state !== "ringing") return;
+  const from = ring.pray.getBoundingClientRect().width;
+  ring.pray.setAttribute("aria-disabled", "true");
+  setRing("logging");
+  morph("Logging", from);
+  later(() => {
+    setRing("logged");
+    morph("Logged");
+    $("[data-logged-text]").textContent = `${ringName()} logged at ${timeIn(0)}.`;
+    logToHistory();
+  }, 1500);
+}
+
+// Today's square in the history grid turns green, as in the app.
+function logToHistory() {
+  const j = PRAYERS.findIndex((p) => p.key === ringKey);
+  WEEK[WEEK.length - 1][j] = "first";
+  const cell = $("[data-grid]").lastElementChild?.children[j + 1]?.querySelector(".cell");
+  if (!cell) return;
+  const res = RESPONSES.first;
+  cell.style.setProperty("--c", res.c);
+  cell.setAttribute("aria-label", `${PRAYERS[j].name}, ${res.label}`);
+  cell.innerHTML = ICONS[res.icon];
+  cell.classList.remove("is-new");
+  void cell.offsetWidth;
+  cell.classList.add("is-new");
+}
+
+function resetRing() {
+  const hadFocus = ring.root.contains(document.activeElement);
+  ringTimers.forEach(clearTimeout);
+  ringTimers = [];
+  setRing("ringing");
+  ring.pray.classList.remove("is-sizing");
+  ring.pray.style.width = "";
+  ring.pray.removeAttribute("aria-disabled");
+  ring.label.textContent = "I'm praying";
+  delete ring.label.dataset.text;
+  $("[data-ringing-name]").textContent = ringName();
+  if (hadFocus) ring.pray.focus();
+}
+
+function showWheel(v) {
+  if (v === wheelValue) return;
+  wheelValue = v;
+  ring.wheel.setAttribute("aria-valuenow", v);
+  ring.wheel.setAttribute("aria-valuetext", `${v} minute${v === 1 ? "" : "s"}`);
+  ring.wheel.querySelectorAll("li").forEach((li, i) => li.classList.toggle("is-picked", i + 1 === v));
+  $("[data-wheel-hint]").textContent = `${ringName()} rings again at ${timeIn(v)}`;
+}
+
+function setWheel(v, smooth) {
+  v = Math.min(120, Math.max(1, v));
+  ring.wheel.scrollTo({ top: (v - 1) * ITEM, behavior: smooth ? "smooth" : "auto" });
+  showWheel(v);
+}
+
+function setupRinging() {
+  const root = $("[data-ringing]");
+  ring = { root, pray: $("[data-pray]"), label: $("[data-pray-label]"), wheel: $("[data-wheel]") };
+
+  $("[data-wheel-list]").innerHTML = Array.from({ length: 120 }, (_, i) =>
+    `<li data-minutes="${i + 1}">${i + 1} min</li>`).join("");
+  let queued = false;
+  ring.wheel.addEventListener("scroll", () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      showWheel(Math.min(120, Math.max(1, Math.round(ring.wheel.scrollTop / ITEM) + 1)));
+    });
+  }, { passive: true });
+  ring.wheel.addEventListener("click", (e) => {
+    const li = e.target.closest("li");
+    if (li) setWheel(Number(li.dataset.minutes), true);
+  });
+  ring.wheel.addEventListener("keydown", (e) => {
+    const step = { ArrowUp: -1, ArrowDown: 1, PageUp: -10, PageDown: 10 }[e.key];
+    if (step) setWheel(wheelValue + step, true);
+    else if (e.key === "Home") setWheel(1, true);
+    else if (e.key === "End") setWheel(120, true);
+    else return;
+    e.preventDefault();
+  });
+
+  ring.pray.addEventListener("click", pray);
+  $("[data-delay-open]").addEventListener("click", () => {
+    setRing("delay");
+    wheelValue = 0;
+    setWheel(10, false);
+    ring.wheel.focus({ preventScroll: true });
+  });
+  $("[data-delay-cancel]").addEventListener("click", () => {
+    setRing("ringing");
+    $("[data-delay-open]").focus();
+  });
+  $("[data-delay-confirm]").addEventListener("click", () => {
+    const v = wheelValue;
+    $("[data-delayed-title]").textContent = `Delayed ${v} minute${v === 1 ? "" : "s"}`;
+    $("[data-delayed-text]").textContent = `${ringName()} rings again at ${timeIn(v)}.`;
+    setRing("delayed");
+    root.querySelector('[data-panel="delayed"] [data-ring-reset]').focus({ preventScroll: true });
+  });
+  root.querySelectorAll("[data-ring-reset]").forEach((b) => b.addEventListener("click", resetRing));
 }
 
 function setPreview(scene) {
@@ -307,6 +565,8 @@ function setupCollapse() {
 
 function start() {
   setupCollapse();
+  setupAlarms();
+  setupRinging();
   document.querySelectorAll("[data-scene-pick]").forEach((b) => {
     b.addEventListener("click", () => setPreview(b.dataset.scenePick));
   });

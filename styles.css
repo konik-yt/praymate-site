@@ -1,0 +1,806 @@
+/* Praymate website. Colors come from the app's HomePalette
+   (lib/theme/home_palette.dart): each time of day has its own ground, box,
+   text and accent colors, and the page follows the time of day. */
+
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Outfit"; src: url("assets/fonts/Outfit-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+:root {
+  --delft: #353B56;
+  --earth: #FBB45E;
+  --cream: #F6F1EA;
+  --deep: #1C2032;
+  --hero-text: #FFF9EF;
+  --prayed: #A4D9BC;
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Outfit", system-ui, sans-serif;
+
+  --gutter: 24px;
+  --max: 1120px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-io: cubic-bezier(.65, 0, .3, 1);
+  --ease-zoom: cubic-bezier(.32, 0, .67, 0);   /* ease in: starts slow, ends fast */
+  --ease-pan: cubic-bezier(.7, 0, .25, 1);      /* starts slowly, speeds up, then settles */
+
+  /* Hero sizes. 0 is the opening view, 1 the band it shrinks to as you
+     scroll. B is the height of the picture's box, S the side of the square
+     artwork, cx where the artwork's center sits across the page. The
+     Kaaba's top sits at B - .34 S and its base at B - .1 S. */
+  /* The hero fills the screen. On a tall phone the scene grows with it, up
+     to twice the screen width, so the Kaaba stays near the text. */
+  --cx: 50%;
+  --pan-x: 0px;                       /* moves the Kaaba from --cx to the middle */
+  --B0: max(100svh, calc(330px + 60vw));
+  --S0: clamp(150vw, calc((var(--B0) - 330px) * 1.6), 210vw);
+  --S1: 95vw;
+  --B1: calc(130px + var(--S1) * .34);
+  --T: calc(var(--B0) - var(--B1));   /* scroll distance of the collapse */
+  --p: 0;                             /* collapse progress, set by app.js */
+  --arch: 62vw;                       /* width of the arch the hero opens from */
+}
+
+/* Time-of-day palettes. A section can set its own data-scene. Each scene
+   keeps its hue as a deep ground with cream text, so only the artwork is
+   bright. bg is the page, surface a box on it, raised a box that stands out. */
+[data-scene] {
+  --text: #F3EEE6; --track: rgba(243, 238, 230, .08); --accent: var(--earth);
+}
+[data-scene="dawn"] {
+  --bg: #221C2E; --surface: #2C2439; --raised: #372D47; --secondary: #C3B6C6;
+  --sky-top: #17184D;
+}
+[data-scene="day"] {
+  --bg: #172231; --surface: #1F2D40; --raised: #283850; --secondary: #B8C2CF;
+  --sky-top: #3984D4;
+}
+[data-scene="evening"] {
+  --bg: #251B2A; --surface: #302436; --raised: #3B2D43; --secondary: #CBB8BF;
+  --sky-top: #5C4B71;
+}
+[data-scene="night"] {
+  --bg: #111A28; --surface: #182436; --raised: #213048; --secondary: #BCC4D2;
+  --sky-top: #0D253F;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { color-scheme: light dark; -webkit-text-size-adjust: 100%; scroll-behavior: smooth; background: var(--deep); }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  transition: background-color .6s var(--ease), color .6s var(--ease);
+  overflow-x: hidden;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 400; line-height: 1.1; }
+p { margin: 0; }
+a { color: inherit; }
+
+:focus-visible { outline: 3px solid var(--earth); outline-offset: 3px; border-radius: 6px; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 20;
+  background: var(--deep); color: var(--cream); padding: 10px 16px; border-radius: 12px;
+}
+.skip:focus { top: 12px; }
+
+/* The one button style. The arrow slides on hover. */
+.button {
+  display: inline-flex; align-items: center; gap: 12px;
+  min-height: 52px; padding: 0 22px 0 26px; border-radius: 999px;
+  background: var(--earth); color: #251211;
+  font-weight: 500; font-size: 17px; text-decoration: none;
+  transition: background-color .25s var(--ease);
+}
+.button:hover { background: #FCC57F; }
+.button-arrow {
+  width: 16px; height: 16px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform .35s var(--ease-out);
+}
+.button:hover .button-arrow, .button:focus-visible .button-arrow { transform: translateX(5px); }
+
+.text-button {
+  font: inherit; font-size: 16px; font-weight: 500; color: var(--text);
+  background: none; border: 0; padding: 10px 0; cursor: pointer;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition: text-decoration-color .2s var(--ease);
+}
+.text-button:hover { text-decoration-color: currentColor; }
+
+/* Header, over the sky */
+.site-header {
+  position: absolute; inset: 0 0 auto 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 18px var(--gutter);
+  color: var(--hero-text);
+}
+.brand {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px;
+  text-decoration: none; font-family: var(--serif); font-size: 21px;
+}
+/* The brand gives way to the band title as the hero collapses. */
+.brand { opacity: calc(1 - var(--band-o, 0)); }
+.brand-mark { width: auto; height: 28px; }
+.header-link {
+  display: inline-flex; align-items: center; min-height: 48px;
+  font-size: 16px; font-weight: 500; text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 calc(50% + 13px) / 0 1px no-repeat;
+  transition: background-size .35s var(--ease-out);
+}
+.header-link:hover { background-size: 100% 1px; }
+
+/* Hero. It stays pinned while the page scrolls by T, and its picture
+   shrinks from B0 to B1 over that distance, so the content below stays
+   attached to the picture's lower edge and the Kaaba rises, like the app's
+   switch from Home to another tab. */
+.intro { height: calc(var(--B0) + var(--T)); }
+.hero {
+  position: sticky; top: 0;
+  height: var(--B0);
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--hero-text);
+  transition: background-color .6s var(--ease);
+}
+.after { position: relative; z-index: 1; margin-top: calc(-1 * var(--T)); }
+
+.art-box {
+  position: absolute; inset: 0 0 auto 0;
+  height: calc(var(--B0) - var(--T) * var(--p));
+  overflow: hidden;
+  background: var(--sky-top);
+  transition: background-color .6s var(--ease);
+}
+.hero { --S: calc(var(--S0) + (var(--S1) - var(--S0)) * var(--p)); }
+.stage {
+  position: absolute; left: var(--cx); bottom: calc(var(--S) * -.1);
+  width: var(--S); height: var(--S); margin-left: calc(var(--S) * -.5);
+  transform-origin: 50% 70%;
+}
+.art {
+  position: absolute; top: 0; left: 50%;
+  height: 100%; width: auto; max-width: none;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity .7s var(--ease);
+}
+/* A sharper square of the scene sits over the middle of the wide art, with
+   soft sides so the join does not show. */
+.art-center {
+  left: 0; width: 100%; height: 100%; transform: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+[data-scene="dawn"] .art[data-art="dawn"],
+[data-scene="day"] .art[data-art="day"],
+[data-scene="evening"] .art[data-art="evening"],
+[data-scene="night"] .art[data-art="night"] { opacity: 1; }
+
+.ground-fade {
+  position: absolute; left: -300%; right: -300%; bottom: 9.5%; height: 9%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 55%, transparent) 45%, var(--bg));
+  transition: background .6s var(--ease);
+}
+/* Below the fade the ground is plain page color. It only shows while the
+   opening zoom lifts the scene. */
+.ground-fade::after {
+  content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 300%;
+  background: var(--bg); transition: background-color .6s var(--ease);
+}
+/* Details over the painted sky: stars, a crescent moon, clouds and birds.
+   They stay above the palm tops, which sit at B - .28 S. */
+.sky {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: max(0px, calc(100% - var(--S) * .42));
+  overflow: hidden; pointer-events: none;
+}
+.stars, .clouds, .flock, .moon { opacity: 0; transition: opacity 1s var(--ease); }
+.stars { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(#000 35%, transparent); mask-image: linear-gradient(#000 35%, transparent); }
+.stars i {
+  position: absolute; border-radius: 50%; background: #FFF6E6;
+  box-shadow: 0 0 4px rgba(255, 246, 230, .8);
+  animation: twinkle var(--t) ease-in-out var(--d) infinite alternate;
+}
+@keyframes twinkle { from { opacity: .1; transform: scale(.6); } to { opacity: 1; transform: scale(1.15); } }
+.moon {
+  position: absolute; right: 12%; top: 20%; width: clamp(30px, 2.8vw, 48px);
+  fill: #FFF3DC; filter: drop-shadow(0 0 14px rgba(255, 238, 205, .6));
+}
+/* Soft clouds: three blurred puffs, tinted by --cloud-rgb. */
+.cloud {
+  position: absolute; left: 0; top: var(--y); width: var(--w); height: calc(var(--w) * .3);
+  background: radial-gradient(closest-side, rgb(var(--cloud-rgb, 255 255 255) / .55), rgb(var(--cloud-rgb, 255 255 255) / 0));
+  animation: drift var(--t) linear var(--d) infinite;
+}
+.cloud::before, .cloud::after {
+  content: ""; position: absolute; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(var(--cloud-rgb, 255 255 255) / .5), rgb(var(--cloud-rgb, 255 255 255) / 0));
+}
+.cloud::before { width: 55%; height: 120%; left: 14%; top: -45%; }
+.cloud::after { width: 45%; height: 100%; left: 46%; top: -30%; }
+@keyframes drift { from { transform: translateX(-40vw); } to { transform: translateX(110vw); } }
+.bird { position: absolute; left: 0; top: var(--y); width: var(--w); animation: fly var(--t) linear var(--d) infinite; }
+.bird svg {
+  display: block; width: 100%; fill: none; stroke: #1E1B30; stroke-width: 1.7; stroke-linecap: round;
+  animation: flap .8s ease-in-out infinite alternate;
+}
+@keyframes fly { from { transform: translate(-40px, 0); } to { transform: translate(calc(100vw + 40px), -40px); } }
+@keyframes flap { to { transform: scaleY(.4); } }
+
+[data-scene="dawn"] .stars { opacity: .9; }
+[data-scene="night"] .stars { opacity: 1; }
+[data-scene="evening"] .stars { opacity: .3; }
+[data-scene="dawn"] .moon { opacity: .9; }
+[data-scene="night"] .moon { opacity: 1; }
+[data-scene="day"] .clouds { opacity: 1; }
+[data-scene="evening"] .clouds { opacity: .5; }
+[data-scene="dawn"] .clouds { opacity: .5; }
+[data-scene="dawn"] .cloud { --cloud-rgb: 232 196 222; }
+[data-scene="evening"] .cloud { --cloud-rgb: 243 194 168; }
+[data-scene="dawn"] .flock, [data-scene="evening"] .flock { opacity: .6; }
+[data-scene="day"] .flock { opacity: .5; }
+
+/* Dims the artwork so it sits behind the text, most on the text's side. */
+.art-dim {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(8, 10, 26, .72), rgba(8, 10, 26, .5) 45%, rgba(8, 10, 26, .38));
+}
+/* Darkens the top of the sky behind the text. */
+.art-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(10, 20, 40, .3), rgba(10, 20, 40, .06) 40%, transparent 60%);
+}
+
+.hero-text {
+  position: relative; z-index: 2;
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 104px var(--gutter) 0;
+  opacity: var(--home-o, 1);
+  transform: translateY(calc(var(--home-y, 0) * 1px));
+}
+.hero-text[data-gone] { visibility: hidden; }
+.wordmark {
+  font-size: clamp(64px, 9.5vw, 144px);
+  font-weight: 350;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -.035em;
+  line-height: .95;
+  margin-left: -.05em;
+  text-shadow: 0 2px 40px rgba(10, 16, 40, .2);
+}
+.hero-line {
+  margin: 20px 0 32px; max-width: 24ch;
+  font-size: clamp(18px, 1.5vw, 21px); line-height: 1.45;
+  text-shadow: 0 1px 16px rgba(10, 16, 40, .3);
+}
+
+/* On first load the Kaaba waits behind a small arch window in the middle
+   of the screen, and the page zooms into it. The dark cover around the
+   window grows until the window is bigger than the screen. The scene behind
+   stays still until the zoom is a quarter done (--pan-at), then grows a
+   little and moves the Kaaba to its place at about the window's pace,
+   slowing to a stop once the window is gone. The picture darkens as the
+   window leaves the screen, and the text comes in as the Kaaba settles. Only transform
+   and opacity change, so the browser runs it on the graphics card and it
+   stays smooth. app.js adds is-open once the picture has loaded, and sets
+   --k, the scale at which the window covers the whole screen. */
+.hero {
+  --zoom: 1.2s; --pan-at: calc(var(--zoom) * .25); --pan: 1.6s;
+  --text-in: calc(var(--pan-at) + var(--pan) * .6);
+}
+.portal { display: none; }
+.is-revealing .portal { display: block; position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.portal-arch {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--arch); height: calc(var(--S0) * .49);
+  margin: calc(var(--S0) * -.245) 0 0 calc(var(--arch) / -2);
+  border-radius: calc(var(--arch) / 2) calc(var(--arch) / 2) 20px 20px;
+  box-shadow: 0 0 0 150vmax var(--bg);
+  will-change: scale;
+}
+.is-revealing .stage {
+  translate: var(--pan-x) calc(var(--S0) * .275 - var(--B0) / 2);
+  scale: .8;
+  will-change: translate, scale;
+}
+.is-revealing .art-dim, .is-revealing .art-shade { opacity: 0; }
+.is-revealing .site-header,
+.is-revealing .hero-text > * { opacity: 0; transform: translateY(14px); }
+.is-revealing.is-open .portal-arch { scale: var(--k, 8); transition: scale var(--zoom) var(--ease-zoom); }
+.is-revealing.is-open .stage {
+  translate: 0px 0px; scale: 1;
+  transition: translate var(--pan) var(--ease-pan) var(--pan-at), scale var(--pan) var(--ease-pan) var(--pan-at);
+}
+.is-revealing.is-open .art-dim, .is-revealing.is-open .art-shade {
+  opacity: 1; transition: opacity .9s var(--ease-io) calc(var(--zoom) - .3s);
+}
+.is-revealing.is-open .site-header,
+.is-revealing.is-open .hero-text > * {
+  opacity: 1; transform: none;
+  transition: opacity .55s var(--ease) var(--text-in), transform .75s var(--ease-out) var(--text-in);
+}
+.is-revealing.is-open .hero-line { transition-delay: calc(var(--text-in) + .07s); }
+.is-revealing.is-open .hero-text > .button {
+  transition-delay: calc(var(--text-in) + .14s), calc(var(--text-in) + .14s);
+  transition-property: opacity, transform, background-color;
+}
+
+/* The title that rises in on the band, like a tab page's title. */
+.band-text {
+  position: absolute; z-index: 6; left: 0; right: 0; top: 24px;
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 0 var(--gutter);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, .25);
+  opacity: var(--band-o, 0);
+  transform: translateY(calc(var(--band-y, 10) * 1px));
+  pointer-events: none;
+}
+.band-title {
+  font-family: var(--serif); font-size: clamp(32px, 3.4vw, 46px);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -.025em; line-height: 1;
+}
+
+/* Features, one at a time, all on the same left edge */
+.feature {
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 112px var(--gutter) 0;
+  display: grid; gap: 40px;
+}
+.feature:first-child { padding-top: 56px; }
+.feature h2 {
+  font-size: clamp(34px, 3.8vw, 52px);
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -.02em; line-height: 1.08;
+  max-width: 14ch;
+}
+.feature-copy { display: grid; gap: 18px; align-content: center; }
+.feature-copy p { max-width: 30rem; color: var(--secondary); }
+.feature-copy .feature-try { font-size: 16px; color: var(--text); }
+.feature-visual { min-width: 0; }
+
+/* Prayer times */
+.schedule { max-width: 500px; width: 100%; }
+.schedule-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin-bottom: 16px; }
+.schedule-date { font-size: 15px; color: var(--secondary); }
+.schedule-hijri { font-family: var(--serif); font-size: 22px; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
+  padding: 12px 22px 12px 12px; border-radius: 22px;
+  background: var(--surface);
+  transition: background-color .6s var(--ease);
+}
+.row-icon {
+  width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--track); color: var(--secondary);
+}
+.row-icon svg { width: 22px; height: 22px; }
+.row-name { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 500; }
+.row-time { font-size: 19px; font-weight: 500; white-space: nowrap; }
+.row-time small { font-size: 13px; margin-left: 3px; }
+.row.is-past .row-name, .row.is-past .row-time { opacity: .55; }
+.row.is-next { background: var(--raised); box-shadow: inset 0 0 0 1px rgba(251, 180, 94, .45); }
+.row.is-next .row-icon { background: rgba(251, 180, 94, .14); color: var(--earth); }
+.pill {
+  font-size: 13px; font-weight: 500; padding: 2px 10px; border-radius: 999px;
+  background: rgba(251, 180, 94, .18); color: var(--earth);
+}
+.place { margin-top: 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; font-size: 16px; }
+.place-status { flex-basis: 100%; font-size: 15px; color: var(--secondary); }
+.place-status:empty { display: none; }
+
+/* Alarms */
+.alarms { max-width: 500px; width: 100%; display: grid; gap: 8px; }
+.alarm-rows { display: grid; gap: 8px; }
+/* The Next alarm card stays put while its text fades out, changes, and
+   fades back in. */
+.alarm-next > * { transition: opacity .2s var(--ease-io), transform .2s var(--ease-io); }
+.alarm-next.is-fading > * { opacity: 0; transform: translateY(4px); }
+.alarm-next {
+  overflow: hidden;
+  background: var(--raised); color: var(--text);
+  border-radius: 28px; padding: 26px 28px 24px; margin-bottom: 6px;
+}
+.alarm-next-label { color: var(--earth); font-size: 15px; font-weight: 500; }
+.alarm-next-time {
+  font-family: var(--serif); font-variation-settings: "opsz" 144;
+  font-size: clamp(48px, 6vw, 68px); letter-spacing: -.02em; line-height: 1;
+  color: var(--earth); margin-top: 10px;
+}
+.alarm-next-time small { font-size: .42em; margin-left: .15em; letter-spacing: 0; }
+.alarm-next-name { margin-top: 12px; font-size: 18px; }
+.alarm-next-none { margin-top: 10px; font-size: 18px; }
+.alarm-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px;
+  padding: 0 14px 0 0; border-radius: 20px; background: var(--surface);
+  transition: background-color .6s var(--ease);
+}
+.alarm-main {
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  background: none; border: 0; border-radius: 20px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px;
+  padding: 11px 6px 11px 11px; min-height: 60px;
+}
+.alarm-chevron { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; opacity: .5; transition: transform .35s var(--ease-out); }
+.alarm-row.is-open .alarm-chevron { transform: rotate(180deg); }
+.alarm-row .row-icon { width: 38px; height: 38px; border-radius: 12px; }
+.alarm-row-text { display: grid; line-height: 1.3; }
+.alarm-row-text strong { font-size: 17px; font-weight: 500; }
+.alarm-row-text span { font-size: 14px; color: var(--secondary); }
+.alarm-row-text, .alarm-row .row-icon { transition: opacity .4s var(--ease-io), filter .4s var(--ease-io); }
+.alarm-row.is-off .alarm-row-text, .alarm-row.is-off .row-icon { opacity: .38; filter: grayscale(1); }
+
+.alarm-edit { grid-column: 1 / -1; padding: 2px 4px 16px 16px; display: grid; gap: 14px; }
+.alarm-edit.is-opening { animation: edit-in .4s var(--ease-out) both; }
+@keyframes edit-in { from { opacity: 0; transform: translateY(-6px); } }
+.alarm-edit-note { font-size: 14px; color: var(--secondary); }
+.alarm-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.alarm-presets button {
+  font: inherit; font-size: 14px; cursor: pointer;
+  min-height: 38px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--track); background: none; color: var(--text);
+  transition: background-color .2s var(--ease), border-color .2s var(--ease);
+}
+.alarm-presets button:hover { border-color: var(--secondary); }
+.alarm-presets button[aria-pressed="true"] { background: var(--earth); border-color: var(--earth); color: #251211; }
+.stepper { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+.stepper button {
+  font: inherit; font-size: 22px; line-height: 1; cursor: pointer;
+  width: 44px; height: 44px; border-radius: 50%; border: 0;
+  background: var(--track); color: var(--text);
+  transition: background-color .2s var(--ease), opacity .2s var(--ease);
+}
+.stepper button:hover:not(:disabled) { background: color-mix(in srgb, var(--track), var(--text) 12%); }
+.stepper button:disabled { opacity: .35; cursor: default; }
+.stepper p { text-align: center; display: grid; line-height: 1.25; }
+.stepper strong { font-family: var(--serif); font-weight: 400; font-size: 26px; }
+.stepper span { font-size: 14px; color: var(--secondary); }
+
+.switch {
+  flex: none; width: 50px; height: 30px; border-radius: 999px; padding: 4px; border: 0; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  background: var(--track); display: flex;
+  transition: background-color .4s var(--ease-io);
+}
+.switch::after {
+  content: ""; width: 22px; height: 22px; border-radius: 50%; background: var(--secondary); opacity: .6;
+  transition: transform .4s var(--ease-io), background-color .4s var(--ease-io), opacity .4s var(--ease-io);
+}
+.switch.is-on { background: var(--earth); }
+.switch.is-on::after { background: var(--deep); opacity: 1; transform: translateX(20px); }
+
+/* Answering. The card has three panels stacked in one grid cell, so it
+   keeps its height as they swap. */
+.ringing {
+  --ring-text: #F6F3EC; --ring-muted: #B2BECD;
+  max-width: 380px; width: 100%; border-radius: 36px; padding: 52px 28px 28px;
+  background: #0E1520; color: var(--ring-text); text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(243, 238, 230, .07), 0 40px 80px -40px rgba(0, 0, 0, .6);
+  display: grid;
+}
+.ringing .text-button { color: var(--ring-text); font-size: 15px; }
+.ring-panel {
+  grid-area: 1 / 1; display: grid; align-content: start;
+  transition: opacity .35s var(--ease), transform .5s var(--ease-out), visibility 0s;
+}
+.ring-panel[inert] {
+  opacity: 0; transform: translateY(10px); visibility: hidden;
+  transition: opacity .25s var(--ease), transform .35s var(--ease), visibility 0s .35s;
+}
+
+.ring-main { align-content: center; }
+.ringing-cue { color: var(--earth); font-size: 17px; }
+.ringing-name {
+  font-family: var(--serif); font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: clamp(56px, 7vw, 72px); letter-spacing: -.025em; line-height: 1.05;
+  margin: 8px 0 40px;
+}
+.ringing-buttons { display: grid; gap: 10px; }
+.ringing-btn {
+  font: inherit; font-weight: 500; font-size: 17px; cursor: pointer; border: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 56px; padding: 0 26px; border-radius: 999px; color: #101824;
+  transition: background-color .2s var(--ease), opacity .3s var(--ease), transform .3s var(--ease-out);
+}
+.ringing-pray { background: var(--prayed); overflow: hidden; white-space: nowrap; }
+.ringing-pray:hover { background: #B6E2CA; }
+.ringing-delay { background: var(--earth); }
+.ringing-delay:hover { background: #FCC57F; }
+
+/* I'm praying: the label morphs letter by letter, a spinner turns into a
+   drawn check, and a soft ring grows around the button. */
+.ringing[data-state="logging"] .ringing-pray,
+.ringing[data-state="logged"] .ringing-pray { justify-self: center; cursor: default; }
+.ringing[data-state="logging"] .ringing-pray:hover,
+.ringing[data-state="logged"] .ringing-pray:hover { background: var(--prayed); }
+.ringing-pray.is-sizing { transition: width .55s var(--ease-out), background-color .2s var(--ease); }
+.ringing[data-state="logged"] .ringing-pray { box-shadow: 0 0 0 6px rgba(164, 217, 188, .3); animation: halo 1s var(--ease-out); }
+@keyframes halo {
+  0% { box-shadow: 0 0 0 0 rgba(164, 217, 188, .6); }
+  100% { box-shadow: 0 0 0 6px rgba(164, 217, 188, .3); }
+}
+.morph { display: inline-flex; white-space: pre; }
+.morph .ch { display: inline-block; }
+.morph .ch.in { animation: ch-in .5s var(--ease-out) both; animation-delay: calc(var(--i) * 30ms); }
+.morph .ch.out { animation: ch-out .18s ease-in both; }
+@keyframes ch-in { from { opacity: 0; filter: blur(6px); transform: translateY(6px); } }
+@keyframes ch-out { to { opacity: 0; filter: blur(6px); transform: translateY(-4px); } }
+
+.pray-icon {
+  position: relative; width: 0; height: 20px; margin-left: 0; flex: none;
+  transition: width .4s var(--ease-out), margin-left .4s var(--ease-out);
+}
+.ringing[data-state="logging"] .pray-icon,
+.ringing[data-state="logged"] .pray-icon { width: 20px; margin-left: 12px; }
+.pray-icon svg {
+  position: absolute; inset: 0; width: 20px; height: 20px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+}
+.spinner { opacity: 0; transform: scale(.4); transition: opacity .25s var(--ease), transform .35s var(--ease-out); }
+.spinner circle { stroke-dasharray: 30 44; transform-origin: 50% 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ringing[data-state="logging"] .spinner { opacity: 1; transform: none; }
+.check path { stroke-dasharray: 18; stroke-dashoffset: 18; }
+.ringing[data-state="logged"] .check path { stroke-dashoffset: 0; transition: stroke-dashoffset .45s var(--ease-out) .1s; }
+
+.ring-second { display: grid; min-height: 56px; }
+.ring-second > * { grid-area: 1 / 1; }
+/* Keep Delay its own height instead of stretching to the hidden message. */
+.ring-second > .ringing-delay { align-self: start; }
+.ringing[data-state="logging"] .ring-second .ringing-delay,
+.ringing[data-state="logged"] .ring-second .ringing-delay {
+  opacity: 0; transform: scale(.94); visibility: hidden;
+  transition: opacity .25s var(--ease), transform .3s var(--ease), visibility 0s .3s;
+}
+.ring-logged {
+  display: grid; justify-items: center; align-content: start; gap: 2px; padding-top: 14px;
+  opacity: 0; visibility: hidden; transform: translateY(6px);
+  transition: opacity .3s var(--ease), transform .4s var(--ease-out), visibility 0s .4s;
+}
+.ring-logged p { color: var(--ring-muted); font-size: 15px; }
+.ringing[data-state="logged"] .ring-logged {
+  opacity: 1; visibility: visible; transform: none;
+  transition: opacity .5s var(--ease) .35s, transform .6s var(--ease-out) .35s, visibility 0s;
+}
+
+/* Delay, like the app's Delay alarm dialog */
+.ring-title { font-family: var(--serif); font-size: 30px; line-height: 1.15; }
+.ring-sub { margin-top: 8px; color: var(--ring-muted); font-size: 15px; line-height: 1.5; }
+.wheel-label { margin-top: 18px; color: var(--earth); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
+.wheel-wrap { position: relative; margin-top: 8px; }
+.wheel-wrap::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 44px; margin-top: -22px;
+  border-radius: 14px; background: #223142; pointer-events: none;
+}
+.wheel {
+  position: relative; height: 176px; overflow-y: auto; overscroll-behavior: contain;
+  scroll-snap-type: y mandatory; scrollbar-width: none; border-radius: 14px;
+  -webkit-mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+.wheel::-webkit-scrollbar { display: none; }
+.wheel ol { list-style: none; margin: 0; padding: 66px 0; }
+.wheel li {
+  height: 44px; display: grid; place-items: center; scroll-snap-align: center; cursor: pointer;
+  color: var(--ring-muted); font-size: 18px;
+  transition: color .15s var(--ease), font-size .15s var(--ease);
+}
+.wheel li.is-picked { color: var(--ring-text); font-size: 22px; font-weight: 500; }
+.wheel-hint { margin-top: 10px; color: var(--ring-muted); font-size: 14px; }
+.ring-actions { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ring-actions .ringing-btn { padding: 0 12px; font-size: 16px; }
+.ring-cancel { background: #223142; color: var(--ring-text); }
+.ring-cancel:hover { background: #2B3D52; }
+
+.ring-delayed { align-content: center; justify-items: center; gap: 4px; }
+.delayed-icon { width: 64px; height: 64px; margin-bottom: 14px; fill: none; stroke: var(--earth); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ring-delayed:not([inert]) .delayed-icon path { animation: hand .9s var(--ease-out) both; transform-origin: 24px 24px; }
+@keyframes hand { from { transform: rotate(-120deg); opacity: 0; } }
+.ring-delayed .text-button { margin-top: 12px; }
+
+/* History */
+.history { margin: 0; max-width: 540px; width: 100%; padding: 22px 22px 20px; border-radius: 28px; background: var(--surface); transition: background-color .6s var(--ease); }
+.grid { border-collapse: separate; border-spacing: 6px; table-layout: fixed; margin: -6px; width: calc(100% + 12px); }
+.grid th { font-size: 13px; font-weight: 500; color: var(--secondary); text-align: center; padding-bottom: 4px; }
+.grid th:first-child, .grid td:first-child { text-align: left; width: 22%; font-size: 14px; font-weight: 400; color: var(--secondary); }
+.grid td { padding: 0; }
+.cell { display: block; height: 36px; border-radius: 10px; background: var(--c); }
+.cell.is-new { animation: cell-pop .8s var(--ease-out); }
+@keyframes cell-pop {
+  0% { transform: scale(.6); box-shadow: 0 0 0 0 rgba(164, 217, 188, .9); }
+  60% { transform: scale(1.08); }
+  100% { transform: none; box-shadow: 0 0 0 10px rgba(164, 217, 188, 0); }
+}
+.legend { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--secondary); }
+.legend li { display: inline-flex; align-items: center; gap: 7px; }
+.legend span { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
+
+/* Sky */
+.scenes-wrap { max-width: 500px; width: 100%; }
+.scenes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px; }
+.scenes button {
+  font: inherit; color: var(--text); background: none; border: 0; padding: 0; cursor: pointer;
+  display: grid; gap: 10px; justify-items: start;
+}
+.scenes img {
+  width: 100%; aspect-ratio: 1 / 1.15; object-fit: cover; object-position: 50% 78%;
+  border-radius: 999px 999px 18px 18px;
+  outline: 2px solid transparent; outline-offset: 4px;
+  transition: outline-color .25s var(--ease), transform .45s var(--ease-out);
+}
+.scenes button:hover img { transform: translateY(-4px); }
+.scenes button span { font-size: 16px; }
+.scenes button[aria-pressed="true"] img { outline-color: var(--text); }
+.scenes-reset { margin-top: 14px; }
+
+/* Closing, always at night, like the app's welcome screens */
+.get {
+  position: relative; isolation: isolate; overflow: hidden;
+  margin-top: 160px; min-height: 100svh;
+  --horizon: 27%;
+  background: linear-gradient(to bottom, #20233C 0%, #36344F 12%, #6A5562 var(--horizon), #252536 var(--horizon), var(--deep) 62%);
+  color: var(--cream);
+  padding: 0 var(--gutter);
+  display: grid; grid-template-rows: 1fr auto; text-align: center;
+}
+.get-sky { position: absolute; inset: 0 0 auto; height: var(--horizon); z-index: -1; overflow: hidden; pointer-events: none; }
+.get-sky .moon { opacity: 1; top: 18%; right: 14%; }
+.get-sky .clouds { opacity: .55; }
+.get-sky .cloud { --cloud-rgb: 214 172 190; }
+.get-ridge {
+  position: absolute; left: 0; z-index: -1; width: 100%;
+  --rh: clamp(56px, 8vw, 128px); height: var(--rh); top: calc(var(--horizon) + 2px - var(--rh));
+}
+.get-body { display: grid; justify-items: center; align-content: center; padding: 96px 0 64px; }
+.arch {
+  width: min(360px, 76vw); padding: 10px;
+  border: 1px solid rgba(201, 150, 104, .7);
+  border-radius: calc(min(360px, 76vw) / 2) calc(min(360px, 76vw) / 2) 28px 28px;
+}
+.arch-window {
+  aspect-ratio: 1 / 1.04; overflow: hidden;
+  border-radius: calc(min(360px, 76vw) / 2 - 10px) calc(min(360px, 76vw) / 2 - 10px) 20px 20px;
+}
+.arch-window img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 80%; }
+.get h2 {
+  margin-top: 64px; max-width: 18ch;
+  font-variation-settings: "opsz" 96, "SOFT" 50;
+  font-size: clamp(32px, 4.4vw, 52px); line-height: 1.14; letter-spacing: -.015em;
+}
+.get-action { margin-top: 36px; display: grid; gap: 14px; justify-items: center; }
+.get-action:has(> [hidden]:only-child) { display: none; }
+
+.site-footer { color: #9E97A8; font-size: 14px; padding: 0 0 40px; }
+.site-footer a { color: var(--cream); }
+
+/* Wider screens: the Kaaba moves to the right and grows. */
+@media (min-width: 760px) {
+  :root {
+    --gutter: 48px;
+    --cx: 66%;
+    --pan-x: -16vw;
+    --B0: max(640px, 100svh);
+    /* The wide art is four times as wide as S. At least .34 of the page
+       width keeps it covering the page on very wide screens. */
+    --S0: max(calc(var(--B0) * 1.45), 34vw);
+    --S1: max(calc(var(--B0) * .6), 34vw);
+    --B1: calc(180px + var(--S1) * .34);
+    --arch: calc(var(--S0) * .36);
+  }
+  .site-header { padding-top: 24px; }
+  .hero-text {
+    position: absolute; inset: 0; margin: 0 auto;
+    padding: 0 var(--gutter) 14svh;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    pointer-events: none;
+  }
+  .hero-text > * { pointer-events: auto; }
+  .art-dim {
+    background: linear-gradient(90deg, rgba(8, 10, 26, .82), rgba(8, 10, 26, .62) 38%, rgba(8, 10, 26, .42) 66%, rgba(8, 10, 26, .36));
+  }
+  .band-text { top: 28px; }
+  .feature {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 96px; align-items: center; padding-top: 168px;
+  }
+  .feature:first-child { padding-top: 72px; }
+  .feature-visual { display: flex; justify-content: center; }
+  .scenes { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .scenes button span { font-size: 15px; }
+}
+
+@media (max-width: 520px) {
+  body { font-size: 17px; }
+  .row { padding: 11px 16px 11px 11px; gap: 12px; }
+  .row-name { font-size: 17px; gap: 8px; }
+  .row-time { font-size: 18px; }
+  .history { padding: 16px 14px; }
+  .grid th { font-size: 11px; }
+  .grid th:first-child, .grid td:first-child { font-size: 12px; }
+  .cell { height: 32px; }
+  .hero-line { margin: 16px 0 26px; }
+}
+
+/* With reduced motion the hero stays as it is and scrolls away. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --T: 0px; --p: 0; }
+  .band-text, .flock { display: none; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+}
+
+/* Terms and Privacy pages */
+.legal-page {
+  --bg: #151A26; --text: #ECE6DD; --secondary: #A49EAE; --rule: rgba(236, 230, 221, .12);
+  background: var(--bg); color: var(--text);
+}
+.legal-header {
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 18px var(--gutter);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.legal { max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto; padding: 0 var(--gutter); }
+.legal-head { padding: 64px 0 48px; border-bottom: 1px solid var(--rule); }
+.legal h1 {
+  font-size: clamp(44px, 6vw, 80px);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -.03em; line-height: 1;
+}
+.legal-updated { margin-top: 16px; font-size: 15px; color: var(--secondary); }
+.legal-intro { margin-top: 28px; max-width: 38rem; font-size: 20px; line-height: 1.55; }
+.legal-layout { display: grid; gap: 48px; padding: 48px 0 104px; }
+.legal-toc { display: none; }
+.legal-body { max-width: 40rem; }
+.legal-body section { scroll-margin-top: 24px; }
+.legal-body section + section { margin-top: 48px; }
+.legal-body h2 {
+  font-size: 28px; font-variation-settings: "opsz" 72, "SOFT" 30;
+  letter-spacing: -.01em; margin-bottom: 14px;
+}
+.legal-body p { font-size: 17px; line-height: 1.7; color: #CDC6BD; }
+.legal-body p + p { margin-top: 14px; }
+.legal-body strong { font-weight: 600; color: var(--text); }
+.legal-footer {
+  border-top: 1px solid var(--rule);
+  max-width: calc(var(--max) + 2 * var(--gutter)); margin: 0 auto;
+  padding: 28px var(--gutter) 48px;
+  display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 15px;
+}
+.legal-footer a { color: var(--secondary); text-decoration: none; }
+.legal-footer a:hover, .legal-footer a[aria-current] { color: var(--text); }
+.legal-footer a[aria-current] { font-weight: 500; }
+
+@media (min-width: 900px) {
+  .legal-head { padding-top: 96px; }
+  .legal-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 80px; padding-top: 64px; }
+  .legal-toc { display: block; position: sticky; top: 32px; align-self: start; }
+  .legal-toc p { font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--secondary); }
+  .legal-toc ol { list-style: none; margin: 14px 0 0; padding: 0; }
+  .legal-toc a { display: block; padding: 5px 0; font-size: 15px; line-height: 1.35; color: var(--secondary); text-decoration: none; }
+  .legal-toc a:hover { color: var(--text); }
+}
+
+/* Links to the legal pages at the foot of the home page */
+.footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 24px; }
+.footer-links a { color: var(--cream); text-decoration: none; }
+.footer-links a:hover { text-decoration: underline; text-underline-offset: 4px; }

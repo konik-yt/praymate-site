@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en" data-scene="dawn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- The page has its own colors for each time of day. Stop browsers and
+       dark mode extensions from recoloring it. -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="darkreader-lock">
+  <title>Praymate: an alarm for each daily prayer</title>
+  <meta name="description" content="Praymate is an Android app that works out the five daily prayer times on your phone, rings an alarm for each one, and keeps a quiet record of how you answered.">
+  <meta name="theme-color" content="#17184D">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,0..100&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // The hero opens out of an arch on first load. Decide before the first
+    // paint, so the page never flashes the full picture first.
+    try {
+      // A reload starts at the top, so the opening is never played off screen.
+      if (!location.hash && "scrollRestoration" in history) history.scrollRestoration = "manual";
+      if (matchMedia("(prefers-reduced-motion: no-preference)").matches && !location.hash) {
+        document.documentElement.classList.add("is-revealing");
+        // If app.js never runs, open the picture anyway.
+        window.revealFallback = setTimeout(function () { document.documentElement.classList.add("is-open"); }, 2500);
+      }
+    } catch (_) {}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/adhan@4.4.3/lib/bundles/adhan.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <main id="main">
+    <!-- The hero pins while you scroll and shrinks into a band, the way the
+         app's artwork resizes when you go from Home to another tab. -->
+    <div class="intro">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <header class="site-header">
+          <a class="brand" href="#top" aria-label="Praymate, back to top">
+            <img class="brand-mark" src="assets/logo.svg" alt="" width="20" height="30">
+            <span>Praymate</span>
+          </a>
+          <a class="header-link" href="#get">Get the app</a>
+        </header>
+
+        <div class="art-box" aria-hidden="true">
+          <div class="stage">
+            <img class="art" data-art="dawn" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 840vw"
+              data-srcset="assets/art/dawn-wide-1400.webp 5600w, assets/art/dawn-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="dawn" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) 145vh, 210vw"
+              data-srcset="assets/art/dawn-center-1600.webp 1600w, assets/art/dawn-center-2600.webp 2600w, assets/art/dawn-center-3600.webp 3600w">
+            <img class="art" data-art="day" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 840vw"
+              data-srcset="assets/art/daytime-wide-1400.webp 5600w, assets/art/daytime-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="day" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) 145vh, 210vw"
+              data-srcset="assets/art/daytime-center-1600.webp 1600w, assets/art/daytime-center-2600.webp 2600w, assets/art/daytime-center-3600.webp 3600w">
+            <img class="art" data-art="evening" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 840vw"
+              data-srcset="assets/art/evening-wide-1400.webp 5600w, assets/art/evening-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="evening" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) 145vh, 210vw"
+              data-srcset="assets/art/evening-center-1600.webp 1600w, assets/art/evening-center-2600.webp 2600w, assets/art/evening-center-3600.webp 3600w">
+            <img class="art" data-art="night" alt="" width="9600" height="2400" decoding="async" sizes="(min-width: 760px) 580vh, 840vw"
+              data-srcset="assets/art/night-wide-1400.webp 5600w, assets/art/night-wide-2400.webp 9600w">
+            <img class="art art-center" data-art="night" alt="" width="3600" height="3600" decoding="async" sizes="(min-width: 760px) 145vh, 210vw"
+              data-srcset="assets/art/night-center-1600.webp 1600w, assets/art/night-center-2600.webp 2600w, assets/art/night-center-3600.webp 3600w">
+            <div class="ground-fade"></div>
+          </div>
+          <!-- Live details over the painted sky, chosen by the time of day. -->
+          <div class="sky">
+            <div class="stars" data-stars="120"></div>
+            <svg class="moon" viewBox="0 0 40 40"><path d="M24 6a14 14 0 1 0 10 24A11 11 0 0 1 24 6Z"/></svg>
+            <div class="clouds">
+              <span class="cloud" style="--w:300px;--y:14%;--t:150s;--d:-40s"></span>
+              <span class="cloud" style="--w:220px;--y:38%;--t:190s;--d:-120s"></span>
+              <span class="cloud" style="--w:360px;--y:56%;--t:170s;--d:-80s"></span>
+            </div>
+            <div class="flock">
+              <span class="bird" style="--w:18px;--y:42%;--t:46s;--d:-14s"><svg viewBox="0 0 24 10"><path d="M1 6Q6 1 12 6Q18 1 23 6"/></svg></span>
+              <span class="bird" style="--w:14px;--y:47%;--t:46s;--d:-15.2s"><svg viewBox="0 0 24 10"><path d="M1 6Q6 1 12 6Q18 1 23 6"/></svg></span>
+              <span class="bird" style="--w:16px;--y:36%;--t:58s;--d:-40s"><svg viewBox="0 0 24 10"><path d="M1 6Q6 1 12 6Q18 1 23 6"/></svg></span>
+            </div>
+          </div>
+          <div class="art-dim"></div>
+          <div class="art-shade"></div>
+        </div>
+        <!-- The dark cover with an arch window that the page zooms into on first load. -->
+        <div class="portal" aria-hidden="true"><div class="portal-arch"></div></div>
+
+        <div class="band-text" aria-hidden="true">
+          <p class="band-title">Praymate</p>
+        </div>
+
+        <div class="hero-text">
+          <h1 class="wordmark" id="hero-title">Praymate</h1>
+          <p class="hero-line">Five prayers a day, each with an alarm of its own.</p>
+          <a class="button" href="#get">
+            Get the app
+            <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <div class="after">
+      <div class="features" id="features">
+        <!-- Prayer times -->
+        <section class="feature" aria-labelledby="f-times">
+          <div class="feature-copy">
+            <h2 id="f-times">Times for wherever you are.</h2>
+            <p>Fajr, Dhuhr, Asr, Maghrib and Isha, worked out on your phone from your location. No connection needed.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="schedule">
+              <div class="schedule-head">
+                <p class="schedule-date" data-date>&nbsp;</p>
+                <p class="schedule-hijri" data-hijri title="Calculated with the tabular Islamic calendar. A local moon sighting can differ by a day.">&nbsp;</p>
+              </div>
+              <ol class="rows" data-rows></ol>
+              <div class="place">
+                <p data-place-label>Today in Makkah</p>
+                <button class="text-button" type="button" data-locate>Use my location</button>
+                <p class="place-status" data-place-status role="status"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Alarms -->
+        <section class="feature" aria-labelledby="f-alarms">
+          <div class="feature-copy">
+            <h2 id="f-alarms">An alarm for each prayer.</h2>
+            <p>Ring at the prayer time, a little before or a little after. Alarms keep working when the app is closed, and after a restart.</p>
+            <p class="feature-try">Try it: switch an alarm off, or tap a prayer to move its alarm.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="alarms" data-alarms><div class="alarm-next" data-alarm-head></div><div class="alarm-rows" data-alarm-rows></div></div>
+          </div>
+        </section>
+
+        <!-- Answering -->
+        <section class="feature" aria-labelledby="f-answer">
+          <div class="feature-copy">
+            <h2 id="f-answer">One tap to answer.</h2>
+            <p>Tap I'm praying when it rings. Not ready? Delay it by up to two hours and Praymate reminds you again.</p>
+            <p class="feature-try">Try both buttons.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="ringing" data-ringing data-state="ringing">
+              <div class="ring-panel ring-main" data-panel="main">
+                <p class="ringing-cue">It's time to pray</p>
+                <p class="ringing-name" data-ringing-name>Asr</p>
+                <div class="ringing-buttons">
+                  <button class="ringing-btn ringing-pray" type="button" data-pray>
+                    <span class="morph" data-pray-label>I'm praying</span>
+                    <span class="pray-icon" aria-hidden="true">
+                      <svg class="spinner" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/></svg>
+                      <svg class="check" viewBox="0 0 20 20"><path d="M4.8 10.4l3.4 3.4L15.2 6.6"/></svg>
+                    </span>
+                  </button>
+                  <div class="ring-second">
+                    <button class="ringing-btn ringing-delay" type="button" data-delay-open>Delay</button>
+                    <div class="ring-logged" role="status">
+                      <p data-logged-text></p>
+                      <button class="text-button" type="button" data-ring-reset>Ring again</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ring-panel ring-delay" data-panel="delay" inert>
+                <p class="ring-title">Delay alarm</p>
+                <p class="ring-sub">Choose how many minutes to wait before your next reminder.</p>
+                <p class="wheel-label">Minutes</p>
+                <div class="wheel-wrap">
+                  <div class="wheel" data-wheel tabindex="0" role="spinbutton" aria-label="Delay minutes" aria-valuemin="1" aria-valuemax="120" aria-valuenow="10">
+                    <ol data-wheel-list></ol>
+                  </div>
+                </div>
+                <p class="wheel-hint" data-wheel-hint>&nbsp;</p>
+                <div class="ring-actions">
+                  <button class="ringing-btn ring-cancel" type="button" data-delay-cancel>Cancel</button>
+                  <button class="ringing-btn ringing-delay" type="button" data-delay-confirm>Delay alarm</button>
+                </div>
+              </div>
+
+              <div class="ring-panel ring-delayed" data-panel="delayed" inert>
+                <svg class="delayed-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19"/><path d="M24 13v11.5l7.5 4.5"/></svg>
+                <p class="ring-title" data-delayed-title>Delayed</p>
+                <p class="ring-sub" data-delayed-text role="status"></p>
+                <button class="text-button" type="button" data-ring-reset>Ring again</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- History -->
+        <section class="feature" aria-labelledby="f-history">
+          <div class="feature-copy">
+            <h2 id="f-history">A quiet record.</h2>
+            <p>Every answer is saved. Each prayer takes the color of how many reminders it needed, so a missed one is easy to see.</p>
+          </div>
+          <div class="feature-visual">
+            <figure class="history">
+              <table class="grid">
+                <caption class="visually-hidden">An example week of prayer history</caption>
+                <thead><tr><th scope="col"><span class="visually-hidden">Day</span></th><th scope="col">Fajr</th><th scope="col">Dhuhr</th><th scope="col">Asr</th><th scope="col">Maghrib</th><th scope="col">Isha</th></tr></thead>
+                <tbody data-grid></tbody>
+              </table>
+              <ul class="legend" aria-label="What the colors mean">
+                <li><span style="--c:#A4D9BC"></span>First reminder</li>
+                <li><span style="--c:#BED064"></span>Later reminder</li>
+                <li><span style="--c:#FBB45E"></span>4 or more</li>
+                <li><span style="--c:#D56B6B"></span>Missed</li>
+              </ul>
+            </figure>
+          </div>
+        </section>
+
+        <!-- Sky -->
+        <section class="feature" aria-labelledby="f-sky">
+          <div class="feature-copy">
+            <h2 id="f-sky">A sky that keeps time.</h2>
+            <p>Dawn, day, evening and night, following the sun where you are. This page opens at dawn. Pick another scene, or let it follow the time of day.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="scenes-wrap">
+              <div class="scenes" role="group" aria-label="Show the page at a time of day">
+                <button type="button" data-scene-pick="dawn" aria-pressed="true"><img src="assets/art/dawn-960.webp" alt="" width="960" height="960" loading="lazy"><span>Dawn</span></button>
+                <button type="button" data-scene-pick="day" aria-pressed="false"><img src="assets/art/daytime-960.webp" alt="" width="960" height="960" loading="lazy"><span>Day</span></button>
+                <button type="button" data-scene-pick="evening" aria-pressed="false"><img src="assets/art/evening-960.webp" alt="" width="960" height="960" loading="lazy"><span>Evening</span></button>
+                <button type="button" data-scene-pick="night" aria-pressed="false"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"><span>Night</span></button>
+              </div>
+              <button class="text-button scenes-reset" type="button" data-scene-pick="live">Follow the time of day</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- The closing section fills the screen, with the credits at its foot. -->
+      <section class="get" id="get" data-scene="night" aria-labelledby="get-title">
+        <div class="get-sky" aria-hidden="true">
+          <div class="stars" data-stars="70"></div>
+          <svg class="moon" viewBox="0 0 40 40"><path d="M24 6a14 14 0 1 0 10 24A11 11 0 0 1 24 6Z"/></svg>
+          <div class="clouds">
+            <span class="cloud" style="--w:260px;--y:30%;--t:160s;--d:-30s"></span>
+            <span class="cloud" style="--w:340px;--y:62%;--t:200s;--d:-110s"></span>
+            <span class="cloud" style="--w:200px;--y:12%;--t:180s;--d:-150s"></span>
+          </div>
+        </div>
+        <svg class="get-ridge" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+          <path fill="#40384F" d="M0 66C120 38 230 30 350 50s210 40 350 12 260-44 400-18 240 36 340 6V120H0Z"/>
+          <path fill="#252536" d="M0 92c160-22 300-26 430-8s270 26 430 2 300-28 440-8 120 12 140 6V120H0Z"/>
+        </svg>
+        <div class="get-body">
+          <div class="arch" aria-hidden="true">
+            <div class="arch-window"><img src="assets/art/night-960.webp" alt="" width="960" height="960" loading="lazy"></div>
+          </div>
+          <h2 id="get-title">This can be your persistent reminder, right in your pocket.</h2>
+          <div class="get-action">
+            <a class="button" data-download hidden href="#">
+              Download for Android
+              <svg class="button-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4"/></svg>
+            </a>
+          </div>
+        </div>
+        <footer class="site-footer">
+          <nav class="footer-links" aria-label="Legal">
+            <a href="terms.html">Terms and Conditions</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </nav>
+        </footer>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
